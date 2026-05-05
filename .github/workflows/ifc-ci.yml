@@ -1,0 +1,47 @@
+name: IFC + IDS validation
+
+# Activa en S9. Hasta entonces, el workflow existe pero no hay IDS para validar.
+on:
+  push:
+    paths:
+      - 'models/**.ifc'
+      - 'ids/**.ids'
+      - 'scripts/**'
+  pull_request:
+    paths:
+      - 'models/**.ifc'
+      - 'ids/**.ids'
+      - 'scripts/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: '3.12'
+          channels: ifcopenshell,conda-forge
+          channel-priority: strict
+
+      - name: Install IfcOpenShell
+        shell: bash -el {0}
+        run: |
+          conda install -y -c ifcopenshell -c conda-forge ifcopenshell
+          pip install -r requirements.txt
+
+      - name: Smoke test
+        shell: bash -el {0}
+        run: python scripts/00_smoke_test.py
+
+      # En S9 se activa este paso
+      # - name: Validate IFC vs IDS
+      #   shell: bash -el {0}
+      #   run: python scripts/E8_validate.py models/FINAL_proyecto.ifc ids/FINAL.ids
+      #
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: validation-report
+      #     path: reports/*.html
