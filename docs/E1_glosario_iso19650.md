@@ -170,6 +170,102 @@
 
 ---
 
+### 16. Information Standard
+
+**EN:** *Standard agreed for a particular project or asset, against which information is produced.*
+**ES:** Estándar de Información — documento que define **las reglas técnicas y formales** que toda la información del proyecto debe cumplir: nomenclatura de ficheros, clasificación, formatos de intercambio (IFC, BCF, COBie), metadatos obligatorios, sistema de coordenadas y unidades, códigos de estado y suitability, estructura del CDE.
+
+**Contexto de uso:** lo define el *Appointing Party* en la actividad 5.1 y se emite junto al EIR en 5.2. Es **obligatorio y prescriptivo**, aplica a todos los appointments del proyecto. Es el "manual de estilo" de los datos.
+
+**Responde a la pregunta:** *qué reglas debe cumplir la información.*
+
+**Ejemplos de contenido:**
+
+- Patrón de nombrado: `PRJ-ORG-VOL-LEV-TYP-ROL-NNNN.ifc`
+- Clasificación: Uniclass 2015 (tablas Pr/Ss/EF) o GuBIMClass para España
+- Status codes: S0 (WIP) → S1 (coordination) → S2 (information) → S4 (approval) → S6/S7 (PIM/AIM)
+- Formatos: IFC 4.x, BCF 3.0, COBie, PDF/A
+
+**No confundir con:** *production methods and procedures* (ver entrada 17), que definen el **cómo** se produce, no el **qué** se exige.
+
+**Fuente:**
+
+---
+
+### 17. Production Methods and Procedures
+
+**EN:** *Methods and procedures used by appointed parties to produce information in accordance with the project's information standard.*
+**ES:** Métodos y Procedimientos de Producción — conjunto de procesos operativos detallados que cada equipo sigue para **generar entregables que cumplan el information standard**. Es la capa de proceso entre el estándar (reglas) y la herramienta (Revit, ArchiCAD, Tekla, IfcOpenShell).
+
+**Contexto de uso:** los **propone el Lead Appointed Party** dentro del BEP (pre y post-appointment), se **testean obligatoriamente en la actividad 5.5 (Mobilization)** antes de empezar producción real, y se ejecutan durante 5.6–5.7.
+
+**Responde a la pregunta:** *cómo se produce la información para cumplir el estándar.*
+
+**Cubre típicamente:**
+
+- Plantillas de modelado (`.rte`, `.pln`), librerías de familias, parámetros compartidos
+- Reglas de federación de modelos de disciplinas (origen compartido, IFC reference)
+- Flujo de coordinación y clash detection (Navisworks, Solibri, BIMcollab)
+- Reglas IDS aplicables y uso del IFC Validation Service
+- Flujo de issues BCF (creación, asignación, SLA, cierre)
+- Procedimiento de publicación al CDE con metadatos correctos
+- Matriz de aprobaciones para cambios de estado S0→S1→S2→...
+- Reglas de versionado (P01.01, C01.01) y disparadores de revisión
+
+**Diferencia con information standard:**
+
+| Information Standard          | Production Methods and Procedures        |
+| ----------------------------- | ---------------------------------------- |
+| Define **el qué**             | Define **el cómo**                       |
+| Lo emite el Appointing Party  | Los propone el Lead Appointed Party      |
+| Obligatorio y prescriptivo    | Propuesto y negociable                   |
+| Aplica a **todo** el proyecto | Aplica al **appointment** específico     |
+| Cambia poco                   | Se refina tras testeo en 5.5             |
+
+**Analogía mental:** el information standard es la receta y el plato final esperado; los production methods and procedures son la técnica del cocinero, sus utensilios y su mise en place. Dos cocineros pueden cocinar distinto, pero el plato final debe ser idéntico.
+
+**Fuente:**
+
+---
+
+### 18. Information Protocol
+
+**EN:** *Legal agreement or contractual addendum identifying the information management requirements and obligations of the parties.*
+**ES:** Protocolo de Información — anexo o cláusula contractual que **da fuerza legal** a los requisitos de gestión de información del proyecto. Convierte el EIR, el information standard, los production methods and procedures y el BEP en obligaciones contractuales exigibles.
+
+**Contexto de uso:** lo establece el *Appointing Party* en la actividad 5.1 como **marco contractual** y se incorpora a cada appointment firmado en 5.4. Sin él, los documentos BIM son orientativos y no exigibles legalmente.
+
+**Responde a la pregunta:** *qué obligaciones contractuales sostienen el proceso BIM.*
+
+**Contenido típico:**
+
+- Definiciones de roles (Appointing Party, Lead Appointed Party, Task Team)
+- Obligaciones de cumplir el EIR, BEP, information standard y production methods
+- Derechos de propiedad intelectual sobre la información producida
+- Licencias de uso de los modelos
+- Régimen de responsabilidad y limitaciones (qué pasa si un modelo tiene errores)
+- Procedimiento de gestión de cambios contractuales
+- Cláusulas de precedencia entre documentos (qué prevalece si hay conflicto)
+
+**Ejemplos de referencia:**
+
+- [CIC BIM Protocol Second Edition (2018)](https://www.cic.org.uk/services/publications) (Reino Unido)
+- En España suele incorporarse como anexo al contrato basado en plantillas del Ministerio o de itdUPM/es.BIM.
+
+**Tríada documental de 5.1 (recuérdala bien):**
+
+```
+Information Standard         → reglas técnicas (qué cumplir)
+Production Methods & Procs.  → procesos operativos (cómo cumplirlo)
+Information Protocol         → marco contractual (qué obliga)
+```
+
+Los tres forman el **marco de gestión de información del proyecto**. Sin los tres, no puedes pasar a 5.2 (licitar).
+
+**Fuente:**
+
+---
+
 ## Diagrama del ciclo ISO 19650-2 (entregable adicional)
 
 > Insertar aquí imagen del ciclo (`E1_ciclo_iso19650.jpg` o diagrama Mermaid).
@@ -219,8 +315,9 @@ flowchart LR
 
 ## Criterios de aceptación (autocomprobación sábado)
 
-- [ ] ≥ 12 términos definidos con ES + EN
+- [ ] ≥ 12 términos definidos con ES + EN (objetivo ampliado: 18)
 - [ ] Cada término tiene **Fuente** rellenada con URL o documento concreto
+- [ ] Tríada de 5.1 cubierta: information standard + production methods + information protocol
 - [ ] Diagrama del ciclo ISO 19650-2 incluido (imagen o Mermaid)
 - [ ] Tabla de roles por fase completada
 - [ ] 3 dudas anotadas para resolver
