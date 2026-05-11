@@ -46,7 +46,63 @@ flowchart LR
 
 ---
 
-## 2. Detalle por actividad
+## 2. Niveles y macro-etapas
+
+Entender **dónde ocurre cada actividad** y **bajo qué lógica de agrupación** es la clave para no confundir las 8 cláusulas. ISO 19650-2 opera en dos niveles y agrupa las actividades de nivel appointment en tres macro-etapas.
+
+### 2.1 · Los dos niveles
+
+#### Nivel proyecto (project level)
+
+Es el plano global del activo: el proyecto como un todo, desde que el cliente decide construir hasta que recibe el activo terminado. Aquí solo hay **un actor con autoridad**: el *Appointing Party* (cliente / promotor / propietario del activo).
+
+Las decisiones de nivel proyecto afectan a **todos** los contratos y a **todas** las partes contratadas. Son decisiones estructurales: qué información se va a necesitar, en qué formato, con qué estándares, y qué se hace con ella al cerrar.
+
+En este nivel ocurren **solo dos actividades**: la **5.1 (apertura)** y la **5.8 (cierre)**. Son el marco que envuelve todo lo demás.
+
+#### Nivel appointment / nombramiento (appointment level)
+
+Es el plano contractual. Un *appointment* es **cada contrato individual** que el cliente firma con un *Lead Appointed Party* (típicamente el proyectista principal, el constructor principal, o ambos), y a su vez cada *Lead Appointed Party* puede subcontratar a varios *Appointed Parties* (consultores, subcontratistas, especialistas).
+
+En un proyecto real puedes tener varios appointments en paralelo (uno con el arquitecto, otro con el constructor, otro con instalaciones) y **cada uno repite internamente las actividades 5.2 a 5.7**. Por eso la norma dice que estas actividades ocurren *por appointment*, no una sola vez por proyecto.
+
+> **Idea clave:** las actividades 5.1 y 5.8 se hacen **una vez** por proyecto. Las 5.2 a 5.7 se hacen **N veces**, una por cada nombramiento que se firme. Esto es lo que da a la norma su carácter modular y escalable.
+
+### 2.2 · Las tres macro-etapas (dentro del nivel appointment)
+
+Las actividades 5.2 a 5.7 se agrupan en tres bloques con lógica propia:
+
+#### Procurement (aprovisionamiento) · 5.2 + 5.3 + 5.4
+
+Fase de **selección y adjudicación**: el cliente define qué necesita, lo saca a licitación, los candidatos responden, y se elige y formaliza al ganador. Termina cuando el contrato está firmado.
+
+Es decir: **antes de empezar a producir información de verdad, se han establecido contractualmente las reglas del juego** (EIR aceptado, BEP confirmado, MIDP/TIDPs publicados).
+
+#### Planning (planificación) · 5.5
+
+Una vez firmado el contrato, el equipo ganador **moviliza recursos y se prepara para producir**: equipo asignado, herramientas configuradas, plataformas de intercambio operativas, métodos y procedimientos documentados y testeados.
+
+Es la transición de "lo que prometimos en la oferta" a "estamos listos para empezar a entregar". Bloque corto en duración pero crítico: los fallos no detectados aquí se amplifican en producción.
+
+#### Production (producción) · 5.6 + 5.7
+
+Donde realmente **se genera y entrega la información del modelo**: modelado, coordinación, revisiones, aprobaciones, entregas formales al cliente. Es el bloque más largo del proyecto y donde se consumen la mayoría de las horas y del coste.
+
+Termina cuando todos los hitos contractuales del *information delivery milestone schedule* han sido aceptados.
+
+### 2.3 · Resumen mental en una tabla
+
+| Bloque                       | Nivel       | Actividades         | Mantra de una línea               |
+| ---------------------------- | ----------- | ------------------- | --------------------------------- |
+| **Apertura**                 | Proyecto    | 5.1                 | "Defino qué información necesito" |
+| **Procurement**              | Appointment | 5.2 · 5.3 · 5.4     | "Pido, me responden, firmo"       |
+| **Planning**                 | Appointment | 5.5                 | "Me preparo antes de producir"    |
+| **Production**               | Appointment | 5.6 · 5.7           | "Produzco y entrego"              |
+| **Cierre**                   | Proyecto    | 5.8                 | "Archivo y aprendo"               |
+
+---
+
+## 3. Detalle por actividad
 
 ### 5.1 · Assessment and Need
 
@@ -140,7 +196,7 @@ flowchart LR
 
 ---
 
-## 3. Matriz de responsabilidades por fase
+## 4. Matriz de responsabilidades por fase
 
 Codificación: **L** = Lidera · **C** = Colabora · **I** = Informado · **—** = No interviene formalmente.
 
@@ -157,7 +213,7 @@ Codificación: **L** = Lidera · **C** = Colabora · **I** = Informado · **—*
 
 ---
 
-## 4. Vista alternativa · Sub-procesos del appointment
+## 5. Vista alternativa · Sub-procesos del appointment
 
 Esta vista refuerza el agrupamiento canónico de ISO 19650-2 cláusula 5:
 
@@ -198,7 +254,7 @@ flowchart TB
 
 ---
 
-## 5. Cómo encaja con los términos del glosario E1
+## 6. Cómo encaja con los términos del glosario E1
 
 - **OIR / AIR / PIR / EIR** → se definen y refinan en la actividad 5.1 y se empaquetan en 5.2.
 - **BEP** → propuesto en 5.3 (pre-appointment) y confirmado en 5.4 (post-appointment).
@@ -210,7 +266,7 @@ flowchart TB
 
 ---
 
-## 6. Diagrama linear para citar en el glosario principal
+## 7. Diagrama linear para citar en el glosario principal
 
 Versión compacta que puedes embeber directamente en `E1_glosario_iso19650.md`:
 
