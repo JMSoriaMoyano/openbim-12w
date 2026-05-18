@@ -2,7 +2,7 @@
 
 > **Entregable E2 · Semana 2 · Cierre sábado 23/05/2026**
 > Documento emitido por el *appointing party* (NEXUM como promotor) en el marco de ISO 19650-2, actividad 5.2 (Invitation to tender).
-> Versión: 0.3 · Estado: BORRADOR
+> Versión: 0.4 · Estado: BORRADOR
 > Autor: José M. Soria · Fecha: 18/05/2026
 
 ## Document Revision History
@@ -12,6 +12,7 @@
 | 0.1 | 17/05/2026 | Todo el documento | Andamio inicial generado |
 | 0.2 | 18/05/2026 | Todo el documento | Particularización a Can Cabassa PBSA tras S2·L (5 decisiones de diseño) |
 | 0.3 | 18/05/2026 | §3.1 (nueva) | Formalización de MVD aplicable (Reference View por defecto, DTV bilateral acordado) |
+| 0.4 | 18/05/2026 | §3 / §3.1.6 (nueva) | Incorporación de bSDD como fuente única de clasificaciones y propiedades; trazabilidad por URI |
 
 ## Preámbulo — Cascada de requisitos asumida
 
@@ -84,7 +85,8 @@ Se definen **4 hitos** alineados con las fases típicas de un encargo PBSA espa�
 - **Validación de calidad:** IDS v1.0 (buildingSMART) emitidos por el appointing party — uno por hito.
 - **Issues y coordinación:** BCF 3.0.
 - **Nomenclatura de archivos:** ISO 19650-2 §11 (`<Proyecto>-<Originador>-<Volumen>-<Nivel>-<Tipo>-<Disciplina>-<Número>`).
-- **Clasificación:** **GuBIMClass** (sistema oficial del Institut de Tecnologia de la Construcció de Catalunya — coherencia con marco regulatorio catalán).
+- **Clasificación:** **GuBIMClass** (sistema oficial del Institut de Tecnologia de la Construcció de Catalunya — coherencia con marco regulatorio catalán), referenciada vía **URI bSDD persistente** (véase §3.1.6).
+- **Diccionario de datos:** **buildingSMART Data Dictionary (bSDD)** como fuente única autoritativa de clases y propiedades referenciadas en EIR, BEP, IDS e IFC (véase §3.1.6).
 - **Sistema de coordenadas:** ETRS89 / UTM zona 31N (obligatorio para urbanización).
 
 ### 3.1 MVD aplicable
@@ -153,6 +155,60 @@ Un modelo IFC se rechaza en la admisión al CDE si:
 - Declara un MVD no admitido por este EIR.
 - Declara Reference View pero contiene entidades incompatibles con dicho MVD (p.ej. geometría paramétrica donde se exige teselada).
 - Declara DTV sin la excepción registrada en el BEP.
+- Sus `IfcClassificationReference.Location` no resuelven a URIs bSDD válidos (véase §3.1.6).
+
+#### 3.1.6 Diccionario de datos bSDD — clasificaciones y propiedades por URI
+
+Toda clase y toda propiedad citada en este EIR, en el BEP del encargo, en los IDS por hito y en los modelos IFC entregables debe estar **referenciada por su URI persistente en el [buildingSMART Data Dictionary (bSDD)](https://www.buildingsmart.org/users/services/buildingsmart-data-dictionary/)**. Los strings sueltos sin URI no son admisibles en documentos contractuales ni en metadatos IFC.
+
+##### 3.1.6.1 Fuentes autoritativas exigidas
+
+| Tipo de información | Diccionario bSDD | URI base | Uso |
+|---|---|---|---|
+| Entidades y Pset_Common IFC | IFC 4.3 (buildingSMART) | `https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/` | Referencia canónica para entidades (IfcWall, IfcSpace, etc.) y Psets nativos (Pset_WallCommon, Pset_DoorCommon, etc.). |
+| Clasificación constructiva | **GuBIMClass** (ITeC) | URI a confirmar en S3·L vía [bSDD Search](https://search.bsdd.buildingsmart.org/) — fijar antes de H1 | Clasificación obligatoria por disciplina y elemento. |
+| Propiedades corporativas NEXUM | Dominio `nexum.developments` (a evaluar publicación en bSDD) | n/a hoy — decisión documentada en BEP §4.1.6 | Contenedor de `Pset_NEXUM_*` (Sostenibilidad, PBSA, FM). |
+
+> El URI exacto de GuBIMClass se fijará en revisión 0.5 del EIR, una vez confirmado en [bSDD Search](https://search.bsdd.buildingsmart.org/). Hasta ese momento, el BEP debe declarar el URI provisional con marca `[BSDD-URI-PENDING-S3L]` y los IDS de H1 lo resolverán antes de su validación oficial.
+
+##### 3.1.6.2 Materialización en el IFC entregable
+
+Cada elemento clasificado debe portar al menos un `IfcClassificationReference` que cumpla:
+
+| Atributo IFC | Valor exigido |
+|---|---|
+| `Location` | URI bSDD persistente del concepto (p.ej. el URI de la clase GuBIMClass aplicable). |
+| `Identification` | Código humano del concepto (p.ej. `EE-ME-MU-EX`). |
+| `Name` | Nombre del concepto tal como aparece en bSDD. |
+| `ReferencedSource.Source` | `IfcClassification.Source` apuntando al URI raíz del diccionario bSDD (p.ej. `https://identifier.buildingsmart.org/uri/itec/gubimclass/<version>`). |
+| `ReferencedSource.Name` | Nombre canónico del diccionario (`GuBIMClass`). |
+| `ReferencedSource.Edition` | Versión exacta del diccionario consumida del bSDD. |
+
+La **doble clasificación** está permitida cuando un elemento deba pertenecer simultáneamente a más de un sistema (p.ej. GuBIMClass + Uniclass para inversores internacionales) — cada sistema aporta su propio `IfcClassificationReference` independiente.
+
+##### 3.1.6.3 Materialización en el IDS por hito
+
+Los IDS emitidos por el appointing party referenciarán bSDD mediante:
+
+- **Facet `Classification`** con atributo `uri` apuntando al URI bSDD del concepto exigido.
+- **Facet `Property`** con atributo `uri` apuntando al URI bSDD de la propiedad (p.ej. `https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/FireRating`).
+- **Facet `Entity`** sin URI cuando el concepto IFC no esté registrado en bSDD (gap conocido — véase [nota técnica buildingSMART](https://technical.buildingsmart.org/services/bsdd/using-the-bsdd-api/)).
+
+##### 3.1.6.4 Verificación automatizada
+
+El Lead Appointed Party verificará, en el pipeline de admisión al CDE, que:
+
+1. Todo `IfcClassificationReference.Location` resuelve a una clase **viva** en bSDD (HTTP 200 vía [`GET /api/Class/v1?Uri={uri}`](https://technical.buildingsmart.org/services/bsdd/using-the-bsdd-api/)).
+2. La versión del diccionario declarada en el IFC coincide con la versión declarada en el BEP del hito.
+3. Las propiedades exigidas por el IDS por URI bSDD existen en la clase y respetan el tipo de dato y unidades publicadas en bSDD.
+
+Un fallo en cualquiera de los tres puntos genera no conformidad y bloquea la transición a estado `Published`.
+
+##### 3.1.6.5 Gobierno y refresco
+
+- **Snapshot offline tolerado** únicamente en H1 (Anteproyecto) y H2 (Básico).
+- A partir de H3 (Ejecutivo), el cliente de bSDD del CDE consultará el diccionario en línea o usará una **caché controlada con refresco máximo de 7 días**.
+- Cualquier cambio de versión en GuBIMClass durante la vida del encargo se gestiona como modificación contractual (technical change order) con re-validación de todos los IFC `Shared`/`Published`.
 
 ---
 

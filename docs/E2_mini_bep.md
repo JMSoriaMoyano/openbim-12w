@@ -2,7 +2,7 @@
 
 > **Entregable E2 · Semana 2 · Cierre sábado 23/05/2026**
 > BIM Execution Plan respondiendo al EIR del proyecto integrador.
-> Versión: 0.4 · Estado: BORRADOR · Tipo: **pre-appointment** (oferta)
+> Versión: 0.5 · Estado: BORRADOR · Tipo: **pre-appointment** (oferta)
 > Lead appointed party: _(equipo ficticio — completar)_ · Fecha: 18/05/2026
 
 ## Document Revision History
@@ -13,6 +13,7 @@
 | 0.2 | 18/05/2026 | Todo el documento | Particularización a Can Cabassa PBSA tras S2·L (4 hitos, ARQ+EST+MEP+URB, GuBIMClass, Speckle como CDE) |
 | 0.3 | 18/05/2026 | §4.1 (nueva) | Formalización de MVD aplicable y procedimientos de verificación |
 | 0.4 | 18/05/2026 | §4.1.6 (nueva) | Configuración estandarizada de exportación IFC desde Revit + archivo `revit_ifc_export_config.json` |
+| 0.5 | 18/05/2026 | §4.1.6 (ampliado) | Implementación de bSDD: clasificación por URI, mapping de propiedades alineado, verificación automática del resolver |
 
 ---
 
@@ -213,7 +214,7 @@ Los siguientes ajustes deben configurarse manualmente en cada modelo Revit y **s
 |---|---|---|
 | **File Header Information** | Modify Setup → General → File Header Information | Rellenar Author, Organization (NEXUM Developments), Authorization según disciplina |
 | **Project Address** | Modify Setup → General → Project Address | Dirección real del activo Can Cabassa |
-| **Classification Settings** | Modify Setup → Property Sets → Classification Settings… | **Name: `GuBIMClass`** · Source: `https://www.gubimclass.org` · Field name: `ClassificationCode` |
+| **Classification Settings** | Modify Setup → Property Sets → Classification Settings… | **Name: `GuBIMClass`** · **Source: URI bSDD del diccionario GuBIMClass** (véase §4.1.6.bis — hoy provisional `[BSDD-URI-PENDING-S3L]`, fijar en S3·L) · Edition: versión bSDD consumida · Field name: `ClassificationCode` |
 
 ##### Parámetros críticos del JSON y su justificación
 
@@ -232,8 +233,9 @@ Los siguientes ajustes deben configurarse manualmente en cada modelo Revit y **s
 | `IncludeSteelElements` | `true` | Compatibilidad con AP-EST (Tekla) vía intercambios DTV |
 | `ExportRoomsInView` | `true` | Necesario para U4 FM operador PBSA |
 | `ExportUserDefinedPsets` | `true` | Habilita Psets personalizados GuBIMClass + CTE |
-| `ExportUserDefinedPsetsFileName` | `NEXUM_GuBIMClass_UserDefinedPsets.txt` | Plantilla Pset corporativa NEXUM (entregada con el config) |
-| `ExportUserDefinedParameterMapping` | `true` | Mapeo de parámetros Revit → propiedades IFC según GuBIMClass |
+| `ExportUserDefinedPsetsFileName` | `NEXUM_GuBIMClass_UserDefinedPsets.txt` | Plantilla Pset corporativa NEXUM (entregada con el config). Los nombres de Pset y de cada propiedad deben coincidir literalmente con los publicados en bSDD (véase §4.1.6.bis). |
+| `ExportUserDefinedParameterMapping` | `true` | Mapeo de parámetros Revit → propiedades IFC según GuBIMClass. El destino de cada mapeo es el `baseName` de la propiedad bSDD; el `propertySet` es el publicado en bSDD para esa propiedad. |
+| `ExportUserDefinedParameterMappingFileName` | `NEXUM_ParameterMapping.txt` | Fichero plano (formato Autodesk) con el mapeo Revit↔bSDD. Versionado en `configs/`, validado en CI contra el resolver bSDD (véase §4.1.6.bis.4). |
 | `TessellationLevelOfDetail` | `0.5` | Reference View exige geometría teselada con LOD medio (peso/calidad) |
 | `VisibleElementsOfCurrentView` | `true` | Exporta solo elementos de la vista 3D dedicada `IFCExport_<Disciplina>` |
 
@@ -256,8 +258,97 @@ Una vez exportado el IFC, **antes de subirlo al CDE en estado Shared**, el autor
 1. **Local:** abrir el IFC en Bonsai (Blender) o BIMcollab Zoom y verificar visualmente.
 2. **Schema + MVD:** cargarlo en [buildingSMART IFC Validation Service](https://validate.buildingsmart.org/) y guardar el reporte como `<nombre_ifc>_validation_report.pdf` adjunto en el CDE.
 3. **IDS del hito:** ejecutar `ifctester` con el IDS correspondiente al hito.
+4. **Resolver bSDD:** ejecutar `scripts/bsdd_resolve.py` (entregable de S6·L) sobre el IFC — todo `IfcClassificationReference.Location` y todo URI bSDD declarado en el IDS deben resolver a un recurso vivo en bSDD (HTTP 200) y la versión del diccionario debe coincidir con la declarada en este BEP §4.1.6.bis. Reporte: `<nombre_ifc>_bsdd_report.json`.
 
-Los tres reportes se adjuntan al contenedor de información en el CDE como evidencia de cumplimiento.
+Los cuatro reportes se adjuntan al contenedor de información en el CDE como evidencia de cumplimiento.
+
+#### 4.1.6.bis Integración con bSDD — implementación operativa
+
+Esta sección materializa el requisito EIR §3.1.6: cuándo, cómo y con qué herramientas se inyectan los URIs bSDD en el flujo de trabajo Revit→IFC→IDS de Can Cabassa.
+
+##### 4.1.6.bis.1 Diccionarios bSDD consumidos en el encargo
+
+| # | Diccionario | URI raíz | Versión consumida | Fijación |
+|---|---|---|---|---|
+| 1 | IFC 4.3 (buildingSMART) | `https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/` | 4.3.x — confirmar en S3·L | Reference View MVD coincide con esta edición |
+| 2 | **GuBIMClass** (ITeC) | `[BSDD-URI-PENDING-S3L]` — confirmar en [bSDD Search](https://search.bsdd.buildingsmart.org/) | A fijar en S3·L | Snapshot inmutable por hito (ver §4.1.6.bis.5) |
+| 3 | Dominio NEXUM (opcional) | `[BSDD-URI-PENDING-DECISION]` | n/a hasta decisión | Si se publica, contendrá `Pset_NEXUM_Sostenibilidad`, `Pset_NEXUM_PBSA`, `Pset_NEXUM_FM` |
+
+> **Decisión pendiente (registrar en acta S3·L):** ¿NEXUM publica su propio dominio bSDD o mantiene los `Pset_NEXUM_*` exclusivamente como UserDefinedPsets locales? Implicaciones: trazabilidad cross-proyecto vs. coste de governance.
+
+##### 4.1.6.bis.2 Vías de integración bSDD en Revit
+
+| Hito | Vía recomendada | Justificación |
+|---|---|---|
+| H1 Anteproyecto | **Snapshot offline** — descarga manual del diccionario GuBIMClass desde [bSDD Search](https://search.bsdd.buildingsmart.org/) e importación vía `Manage → Classification → Add` | Volumen de clasificaciones bajo, riesgo de re-trabajo asumible. |
+| H2 Básico | **Snapshot offline** + control de cambios trimestral | Estabilidad de elementos clasificados, gobernanza ligera. |
+| H3 Ejecutivo | **Plugin oficial bSDD para Revit** (VolkerVessels / Heijmans, gratuito) — consulta en línea | Volumen alto, necesidad de URIs frescos, alineación automática con cambios upstream. |
+| H4 As-built | **Plugin oficial bSDD** + auditoría final del resolver | Trazabilidad operacional para el operador PBSA. |
+
+El cambio de vía entre H2 y H3 se planifica en S9·L del plan formativo (CI/CD) y se documenta como hito de adopción en este BEP.
+
+##### 4.1.6.bis.3 Materialización en el `.rvt` y en el IFC exportado
+
+El `Classification Settings` configurado en el `.rvt` (no guardado en JSON) debe rellenarse así:
+
+| Campo Revit | Valor exigido |
+|---|---|
+| Name | `GuBIMClass` |
+| Source | URI raíz bSDD del diccionario GuBIMClass — fijado en §4.1.6.bis.1 fila 2 |
+| Edition | Versión exacta consumida en este hito |
+| Edition date | Fecha de la versión publicada en bSDD |
+| Documentation location | URL [bSDD Search](https://search.bsdd.buildingsmart.org/) del diccionario |
+| Field name | `ClassificationCode` |
+
+Al exportar, Revit serializará estos campos como `IfcClassification` (atributos `Source`, `Edition`, `EditionDate`, `Name`) y cada elemento clasificado portará un `IfcClassificationReference` con `Location` = URI bSDD del concepto (no del diccionario), `Identification` = código (`EE-ME-MU-EX`) y `Name` = nombre humano publicado en bSDD.
+
+> **Doble clasificación autorizada:** si en algún hito el inversor exige Uniclass además de GuBIMClass, se añade un segundo `IfcClassification` con su propio URI bSDD. Cada elemento portará dos `IfcClassificationReference` independientes. No se mezcla información entre sistemas.
+
+##### 4.1.6.bis.4 Alineación del `NEXUM_ParameterMapping.txt` con bSDD
+
+El fichero `configs/NEXUM_ParameterMapping.txt` (formato Autodesk) traduce parámetros Revit en castellano a propiedades IFC con nombre y Pset alineados con bSDD:
+
+| Parámetro Revit | → Pset IFC | → Property name (bSDD `baseName`) | URI bSDD de la propiedad |
+|---|---|---|---|
+| Resistencia al fuego | `Pset_WallCommon` | `FireRating` | `https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/FireRating` |
+| Es portante | `Pset_WallCommon` | `LoadBearing` | `https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/LoadBearing` |
+| Es exterior | `Pset_WallCommon` | `IsExternal` | `https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/IsExternal` |
+| Transmitancia U | `Pset_WallCommon` | `ThermalTransmittance` | `https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/ThermalTransmittance` |
+
+> La tabla se completará disciplina a disciplina durante S3·L. Cada fila debe pasar el resolver bSDD antes de entrar en producción (HTTP 200 + `dataType` y `unit` coincidentes con los exigidos por el IDS del hito).
+
+El `NEXUM_ParameterMapping.txt` no contiene los URIs literalmente (limitación del formato Autodesk), pero su tabla maestra (este §4.1.6.bis.4) sí los incluye y es la **fuente única de verdad** para la generación automática del `.txt` en CI.
+
+##### 4.1.6.bis.5 Snapshot vs. live — gobernanza
+
+- **Snapshot por hito:** al cierre de cada hito (H1…H4) se congela una copia del diccionario GuBIMClass consumido (JSON descargado vía `GET /api/Dictionary/v1/Classes`) en `configs/bsdd_snapshots/gubimclass_H<n>_<fecha>.json`. Este snapshot es la referencia inmutable contra la que se valida cualquier IFC `Published` del hito.
+- **Refresco:** entre hitos, refresco máximo cada 7 días para el diccionario IFC y cada 30 días para GuBIMClass. Cualquier desviación superior queda registrada en el BEP como riesgo.
+- **Cambio de versión en vida del encargo:** si ITeC publica una versión nueva de GuBIMClass mid-encargo, el Lead AP evalúa impacto y lo gestiona como technical change order (re-clasificación + re-validación de todos los IFC `Shared`/`Published`).
+
+##### 4.1.6.bis.6 Verificación automática del resolver bSDD
+
+El script `scripts/bsdd_resolve.py` (entregable de S6·L) ejecuta sobre cada IFC sometido al CDE:
+
+1. Extrae todos los `IfcClassificationReference.Location` distintos.
+2. Para cada URI: `GET /api/Class/v1?Uri={uri}` con cliente `requests` (sin auth para lectura). Espera HTTP 200 y JSON con `name`, `definition`, `dictionaryUri`.
+3. Verifica que `dictionaryUri` coincide con el diccionario y versión declarados en este BEP §4.1.6.bis.1.
+4. Para cada propiedad citada en el IDS por URI: `GET /api/Property/v1?Uri={uri}` y comprueba `dataType` y `unit`.
+5. Emite reporte JSON estructurado (`*_bsdd_report.json`) con: total URIs, resueltos, fallidos, desalineados de versión.
+
+El reporte se integra como **paso 4 del pipeline de verificación previo a publicación** (extendiendo §4.1.3) y como **gate obligatorio** en CI a partir de S9·L.
+
+##### 4.1.6.bis.7 Caching y rendimiento
+
+- **Cliente local en CI:** caché HTTP en disco (`~/.cache/bsdd/`) con TTL 24 h vía `requests-cache`. Reduce llamadas API y evita rate-limiting.
+- **Tamaño orientativo:** un IFC ARQ H3 con ~5.000 elementos clasificados genera ~150 llamadas distintas a bSDD (URIs únicos). Con caché caliente: < 5 s. Con caché fría: < 90 s.
+- **Sin auth:** los endpoints de lectura no requieren OAuth2 ([guía oficial bSDD](https://technical.buildingsmart.org/services/bsdd/using-the-bsdd-api/)).
+
+##### 4.1.6.bis.8 Antipatrones a evitar (control de calidad de equipo)
+
+- **A1.** Copy-paste de URIs sin verificar resolución → el resolver de §4.1.6.bis.6 lo bloquea.
+- **A2.** Usar código humano (`EE-ME-MU-EX`) donde se exige URI → falla validación en CI.
+- **A3.** Mezclar URIs de versiones distintas del mismo diccionario en un mismo hito → contradice §4.1.6.bis.5.
+- **A4.** Aceptar IFC de subcontratista sin pasar resolver bSDD → prohibido por §4.1.6 paso 4.
 
 ---
 

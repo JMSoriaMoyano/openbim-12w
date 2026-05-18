@@ -46,15 +46,21 @@
     "applies_to": ["AP-ARQ (Revit 2024.2+)", "AP-MEP (Revit MEP 2024.2+)"],
     "min_revit_version": "2024.2",
     "min_ifc_exporter_version": "24.1.0",
-    "version": "0.3",
+    "version": "0.4",
     "date": "2026-05-18",
     "author": "Jose M. Soria",
     "BEP_reference": "E2_mini_bep.md §4.1.6",
     "EIR_reference": "E2_eir_draft.md §3.1",
+    "bsdd_reference": "E2_mini_bep.md §4.1.6.bis — diccionarios consumidos y tabla maestra de propiedades alineadas con bSDD",
+    "related_files": {
+      "user_defined_psets_txt": "NEXUM_GuBIMClass_UserDefinedPsets.txt (los Psets y propiedades coinciden con bSDD §4.1.6.bis.4)",
+      "parameter_mapping_txt": "NEXUM_ParameterMapping.txt (mapping Revit→bSDD)",
+      "bsdd_resolver_script": "scripts/bsdd_resolve.py (S6·L)"
+    },
     "notes_no_guardados_en_json": [
       "File Header Information (debe configurarse en el modelo y sincronizarse)",
       "Project Address (debe configurarse en el modelo y sincronizarse)",
-      "Classification Settings (Name: GuBIMClass; debe configurarse en el modelo y sincronizarse)"
+      "Classification Settings (Name: GuBIMClass; Source: URI bSDD del diccionario — véase BEP §4.1.6.bis; debe configurarse en el modelo y sincronizarse)"
     ]
   }
 }
