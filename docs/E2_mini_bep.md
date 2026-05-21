@@ -2,7 +2,7 @@
 
 > **Entregable E2 · Semana 2 · Cierre sábado 23/05/2026**
 > BIM Execution Plan respondiendo al EIR del proyecto integrador.
-> Versión: 0.5 · Estado: BORRADOR · Tipo: **pre-appointment** (oferta)
+> Versión: 0.6 · Estado: BORRADOR · Tipo: **pre-appointment** (oferta)
 > Lead appointed party: _(equipo ficticio — completar)_ · Fecha: 18/05/2026
 
 ## Document Revision History
@@ -14,6 +14,7 @@
 | 0.3 | 18/05/2026 | §4.1 (nueva) | Formalización de MVD aplicable y procedimientos de verificación |
 | 0.4 | 18/05/2026 | §4.1.6 (nueva) | Configuración estandarizada de exportación IFC desde Revit + archivo `revit_ifc_export_config.json` |
 | 0.5 | 18/05/2026 | §4.1.6 (ampliado) | Implementación de bSDD: clasificación por URI, mapping de propiedades alineado, verificación automática del resolver |
+| 0.6 | 21/05/2026 | §4.1.7 (nueva) | Plantilla de proyecto Revit unificada (`NEXUM_CanCabassa.rte`) como prerrequisito de la integración bSDD y del `NEXUM_ParameterMapping.txt` |
 
 ---
 
@@ -349,6 +350,90 @@ El reporte se integra como **paso 4 del pipeline de verificación previo a publi
 - **A2.** Usar código humano (`EE-ME-MU-EX`) donde se exige URI → falla validación en CI.
 - **A3.** Mezclar URIs de versiones distintas del mismo diccionario en un mismo hito → contradice §4.1.6.bis.5.
 - **A4.** Aceptar IFC de subcontratista sin pasar resolver bSDD → prohibido por §4.1.6 paso 4.
+
+---
+
+#### 4.1.7 Plantilla de proyecto Revit unificada — prerrequisito del mapping y de bSDD
+
+La integración bSDD definida en §4.1.6.bis solo es operable si **todas las disciplinas del encargo (ARQ, EST, MEP, URB) modelan a partir de la misma plantilla Revit corporativa**, con los mismos Shared Parameters definidos de forma canónica. Esta sección formaliza ese prerrequisito.
+
+##### 4.1.7.1 Problema que esta sección resuelve
+
+El fichero `NEXUM_ParameterMapping.txt` traduce **parametros Revit → properties IFC bSDD** mediante **coincidencia literal de nombre**. Si una disciplina llama al parámetro `Transmitancia U` y otra `U-Value` o `Coef. U`, el mapping solo encaja para una de ellas; la otra exporta la propiedad fuera de `Pset_WallCommon` (o no la exporta), el IDS falla, el resolver bSDD no encuentra la URI esperada y la entrega se bloquea. **La causa raíz no está en el `.txt` ni en bSDD, sino en la falta de consistencia upstream del modelo.**
+
+##### 4.1.7.2 Entregable: `templates/NEXUM_CanCabassa.rte`
+
+NEXUM mantendrá una plantilla Revit corporativa versionada en el repo del proyecto:
+
+- Ruta: `templates/NEXUM_CanCabassa.rte` (binario; se versiona en Git LFS).
+- Versionado paralelo a este BEP (versión de la plantilla = versión del BEP al cierre del hito).
+- Disciplinas cubiertas en H1: ARQ, EST, MEP, URB.
+- Contenido mínimo:
+  - Shared Parameters File canónico: `templates/NEXUM_SharedParameters.txt` (texto, versionable).
+  - Project Parameters precargados y categorizados.
+  - View Template `IFC_Export` (referido en §4.1.6).
+  - Vistas 3D dedicadas `IFCExport_ARQ`, `IFCExport_EST`, `IFCExport_MEP`, `IFCExport_URB`.
+  - Classification Settings precargados con GuBIMClass (URI bSDD según §4.1.6.bis.1).
+  - Filtros y Worksets corporativos NEXUM.
+
+##### 4.1.7.3 Catalogo canónico de Shared Parameters (extracto)
+
+Todo Shared Parameter NEXUM declara: nombre canónico en castellano, GUID estable, tipo de dato, categorías aplicables, y la property IFC bSDD destino.
+
+| Nombre Revit canónico | Tipo Revit | Categorías | Pset IFC destino | Property bSDD destino |
+|---|---|---|---|---|
+| `Resistencia al fuego` | Text | Walls, Doors, Floors, Roofs | `Pset_WallCommon` / `Pset_DoorCommon` / etc. | `FireRating` |
+| `Es portante` | Yes/No | Walls, Floors, Columns, Beams | `Pset_*Common` | `LoadBearing` |
+| `Es exterior` | Yes/No | Walls, Doors, Windows, Floors, Roofs | `Pset_*Common` | `IsExternal` |
+| `Transmitancia U` | Number (W/m²K) | Walls, Roofs, Floors, Windows, Doors | `Pset_*Common` | `ThermalTransmittance` |
+| `Aislamiento acústico` | Number (dB) | Walls, Doors, Floors | `Pset_*Common` | `AcousticRating` |
+| `Reflectancia visible` | Number | Windows, Glazing | `Pset_WindowCommon` | `VisibleLightReflectance` |
+| `Huella carbono A1-A3` | Number (kgCO₂e/u) | Materials, Walls, Floors, Roofs | `Pset_NEXUM_Sostenibilidad` | (dominio NEXUM — decisión bSDD pendiente) |
+| `Tipo espacio PBSA` | Text | Rooms / Spaces | `Pset_NEXUM_PBSA` | (dominio NEXUM) |
+| `Ocupación máxima` | Integer | Rooms / Spaces | `Pset_NEXUM_PBSA` | (dominio NEXUM) |
+
+> La tabla completa vive en `templates/NEXUM_SharedParameters_catalog.md` y se sincroniza disciplina a disciplina durante S3·L. Cada fila debe pasar el resolver bSDD antes de entrar en producción (HTTP 200 + `dataType` y `unit` coincidentes).
+
+##### 4.1.7.4 Coherencia triple obligatoria
+
+Una entrada se considera válida solo si las **tres capas** están alineadas:
+
+1. **Plantilla Revit** (`NEXUM_CanCabassa.rte`) — Shared Parameter con nombre canónico y GUID estable.
+2. **Fichero de mapping** (`configs/NEXUM_ParameterMapping.txt`) — fila que traduce el nombre Revit al Pset/Property IFC.
+3. **Tabla maestra bSDD** (§4.1.6.bis.4) — fila que cita el URI bSDD de la property destino.
+
+Cualquier rotura de esta tripleta es no conformidad y bloquea la transición del IFC a estado `Published`.
+
+##### 4.1.7.5 Adopción disciplinada
+
+| Disciplina | Estado actual | Acción | Plazo |
+|---|---|---|---|
+| ARQ | Modelo iniciado con plantilla heredada (parametros castellano) | Migrar a `NEXUM_CanCabassa.rte` al cierre de H1 | H1 (cierre 03/07/2026) |
+| EST | Modelo iniciado con plantilla Autodesk (parametros mezclados ES/EN) | Migrar antes de H2 | H2 (cierre 25/09/2026) |
+| MEP | Modelo iniciado con plantilla MEP Autodesk (parámetros mayoritariamente en inglés) | Migrar antes de H2; renombrar parámetros divergentes como hotfix B (ver §4.1.7.7) | H1.5 (revisión intermedia 15/08/2026) |
+| URB | Sin iniciar | Arrancar directamente con `NEXUM_CanCabassa.rte` (variante URB) | H1 |
+
+##### 4.1.7.6 Hotfix temporales admitidos
+
+Mientras la migración completa no esté cerrada (hasta H2), se permiten dos hotfixes temporales:
+
+- **Hotfix A — Mapping ampliado:** añadir filas extra al `NEXUM_ParameterMapping.txt` con sinónimos detectados (`U-Value → ThermalTransmittance`, etc.). Cada fila añadida queda marcada con sufijo `# HOTFIX-A H<n>` y es deuda técnica registrada en este BEP.
+- **Hotfix B — Renombrado dirigido:** el modelador de la disciplina renombra el parámetro divergente al nombre canónico antes de la siguiente exportación.
+
+Ambos hotfixes son **temporales y trazables**. Al cierre de H2, todo el mapping `# HOTFIX-A` debe haber sido eliminado y todo el modelado debe partir de la plantilla unificada.
+
+##### 4.1.7.7 Verificación automática
+
+El pipeline de verificación del CDE (§4.1.3 + §4.1.6 + §4.1.6.bis.6) se amplía con un **paso 5**:
+
+5. **Coherencia plantilla:** `scripts/check_template_consistency.py` (entregable de S6·L) verifica que el `.rvt` del modelador declara como `Source Template` el GUID de `NEXUM_CanCabassa.rte` en su versión actual o anterior aceptada. Si no, el IFC se rechaza con motivo `TEMPLATE_MISMATCH`.
+
+##### 4.1.7.8 Antipatrones específicos de plantilla
+
+- **AT1.** Que cada disciplina cree sus propios Shared Parameters «porque los necesita y no estaban». Solución: petición al Lead AP para incluir en la siguiente versión de la plantilla.
+- **AT2.** Renombrar un Shared Parameter NEXUM en un modelo concreto «porque suena mejor». Resultado: rompe el GUID stability y el mapping deja de funcionar para ese modelo aunque el nombre parezca idéntico.
+- **AT3.** Crear parámetros con el mismo nombre **sin compartirlos** (Project Parameter en lugar de Shared Parameter). El GUID no coincide y el exportador IFC no los reconoce como los mismos entre `.rvt`. Solo Shared Parameters tienen GUID estable cross-archivo.
+- **AT4.** Usar `NEXUM_CanCabassa.rte` como punto de partida y luego «limpiar» parámetros que se consideren innecesarios. Resultado: el modelo deja de cumplir la plantilla declarada en §4.1.7.7 y CI marca `TEMPLATE_MISMATCH`.
 
 ---
 
