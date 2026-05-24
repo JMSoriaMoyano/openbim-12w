@@ -15,6 +15,7 @@
 | 0.4 | 18/05/2026 | §4.1.6 (nueva) | Configuración estandarizada de exportación IFC desde Revit + archivo `revit_ifc_export_config.json` |
 | 0.5 | 18/05/2026 | §4.1.6 (ampliado) | Implementación de bSDD: clasificación por URI, mapping de propiedades alineado, verificación automática del resolver |
 | 0.6 | 21/05/2026 | §4.1.7 (nueva) | Plantilla de proyecto Revit unificada (`NEXUM_CanCabassa.rte`) como prerrequisito de la integración bSDD y del `NEXUM_ParameterMapping.txt` |
+| 0.7 | 24/05/2026 | §4.1.6 + §4.1.6.bis + §11 (nueva) | Cierre E2 (sesión S2·S): formalización Anexo A (JSON), referencia cruzada a `S2L_bsdd_implementacion.md`, nueva sección 11 Transmittals (ISO 19650-2 §5.6.3), Dudas pendientes pobladas |
 
 ---
 
@@ -263,9 +264,13 @@ Una vez exportado el IFC, **antes de subirlo al CDE en estado Shared**, el autor
 
 Los cuatro reportes se adjuntan al contenedor de información en el CDE como evidencia de cumplimiento.
 
+> **Anexo A · Configuración técnica de exportación:** los parámetros normativos del cuadro de diálogo Revit IFC Exporter quedan formalizados en el fichero `configs/revit_ifc_export_config.json` (v0.4), declarado como **Anexo A operativo de este BEP** y validado por `scripts/s2x_lab_json_reader.py` (12 invariantes técnicas). La pertenencia de este JSON al cuerpo contractual del encargo equivale a la de un anexo numerado: cualquier modificación de sus claves requiere actualización del BEP y nuevo commit firmado en el repo `openbim-12w`.
+
 #### 4.1.6.bis Integración con bSDD — implementación operativa
 
 Esta sección materializa el requisito EIR §3.1.6: cuándo, cómo y con qué herramientas se inyectan los URIs bSDD en el flujo de trabajo Revit→IFC→IDS de Can Cabassa.
+
+> **Nota técnica de apoyo:** el documento `docs/S2L_bsdd_implementacion.md` (v0.1, 18/05/2026) profundiza en (a) componentes del flujo NEXUM↔bSDD, (b) integración Revit/Bonsai/IDS, (c) gobernanza snapshot vs. live, (d) antipatrones y debugging. Esta sección 4.1.6.bis es la **normativa operativa contractual**; el `.md` es la **referencia técnica reutilizable** entre proyectos NEXUM.
 
 ##### 4.1.6.bis.1 Diccionarios bSDD consumidos en el encargo
 
@@ -544,6 +549,68 @@ Responde al EIR §5, que deja la plataforma abierta. **Propuesta del lead appoin
 
 ---
 
+## 11. Transmittals — mecanismo formal de entrega (ISO 19650-2 §5.6.3)
+
+Un **transmittal** es el documento normativo que acompaña a toda transferencia de contenedores de información entre estados del CDE (especialmente `Shared → Published` y entregas entre partes). Este BEP fija el mínimo viable; la implementación operativa se desarrollará en S11·L del plan formativo OpenBIM 12w (CDE OpenBIM Speckle).
+
+### 11.1 Convención de identificadores
+
+Formato obligatorio:
+
+```
+TRA-CANCABASSA-<NN>-<YYYYMMDD>
+```
+
+- `TRA` literal
+- `CANCABASSA` código de proyecto fijo
+- `<NN>` número correlativo cero-padded (`01`, `02`, ..., `99`)
+- `<YYYYMMDD>` fecha de emisión
+
+Ejemplo: `TRA-CANCABASSA-07-20260615` = séptimo transmittal del encargo, emitido el 15/06/2026.
+
+### 11.2 Campos obligatorios del transmittal
+
+Cada transmittal contiene como mínimo:
+
+| Campo | Descripción | Origen del dato |
+|---|---|---|
+| `transmittal_id` | Identificador según §11.1 | Emisor |
+| `issue_date` | Fecha y hora ISO 8601 UTC | Emisor |
+| `originator` | Parte que emite (Appointed Party, Lead AP, NEXUM) | Emisor |
+| `recipient` | Parte receptora | Emisor |
+| `purpose` | Motivo (revisión / aprobación / publicación / información) | Emisor |
+| `containers` | Lista de IDs MIDP (C-01...C-13) incluidos | MIDP §5 |
+| `state_transition` | `WIP→Shared` / `Shared→Published` / `Published→Archived` | CDE |
+| `attachments_hash_sha256` | Hash de cada contenedor adjunto, calculado sobre el archivo binario | Emisor |
+| `bep_version` | Versión del BEP vigente al emitir | Emisor |
+| `signature` | Firma digital o firma git (`git log` del repo `openbim-12w`) | Emisor |
+
+### 11.3 Verificación por el receptor
+
+Al recibir un transmittal, el receptor (Information Manager o Lead AP) verifica antes de aceptar:
+
+1. **Integridad:** recomputación del `sha256` de cada adjunto y comparación con `attachments_hash_sha256`.
+2. **Coherencia MIDP:** los contenedores listados existen en el MIDP §5 y están en el hito correcto.
+3. **Cumplimiento previo:** cada contenedor pasa los 4 pasos de validación (BEP §6).
+4. **Trazabilidad BEP:** la `bep_version` declarada es la vigente.
+
+Si cualquier verificación falla, el transmittal se **rechaza formalmente** mediante un transmittal de respuesta con `purpose: rejection` y se notifica al originador en menos de 48h hábiles.
+
+### 11.4 Almacenamiento
+
+Todos los transmittals (emitidos y recibidos) se archivan en el CDE bajo `transmittals/<YYYY>/` como ficheros JSON sin modificación posterior (write-once). El índice maestro `transmittals/INDEX.csv` se actualiza automáticamente desde `gh-actions` en cada PR que afecte a esa carpeta.
+
+### 11.5 Implementación operativa (S11·L)
+
+La sesión S11·L del plan formativo OpenBIM 12w cubrirá:
+
+- Generación automática de transmittals desde Speckle al promover `Shared→Published`.
+- Plantilla JSON `transmittal_template.json` versionada en el repo.
+- Script `generate_transmittal.py` que lee el estado del CDE Speckle, calcula hashes y emite el JSON.
+- Test de integridad en el pipeline CI/CD (S9·L).
+
+---
+
 ## Fuentes de referencia
 
 - [Plantilla BEP Smithsonian (Nov 2024)](https://www.sifacilities.si.edu/sites/default/files/Files/BIM/OPDC_BIM_Project_Execution_Plan_Template_Nov2024.docx)
@@ -555,6 +622,8 @@ Responde al EIR §5, que deja la plataforma abierta. **Propuesta del lead appoin
 
 ## Dudas pendientes
 
-1.
-2.
-3.
+1. **URI definitiva GuBIMClass en bSDD** — a confirmar en S3·L mediante consulta a [bSDD Search](https://search.bsdd.buildingsmart.org/). Hasta entonces, las celdas marcadas `[BSDD-URI-PENDING-S3L]` en §4.1.6.bis.1 son bloqueantes para validación automática de cualquier IFC.
+2. **Decisión NEXUM sobre dominio propio en bSDD** — publicar `nexum.developments` con `Pset_NEXUM_*` versus mantenerlos como UserDefinedPsets locales. Implicaciones: trazabilidad cross-proyecto, coste de governance, impacto en IDS futuros. A resolver en S3·L con justificación escrita en §4.1.6.bis.5.
+3. **Designación nominal de roles ISO 19650** — Lead AP, AP por disciplina, Information Manager siguen como `_(a designar)_` en §3 y §6 del EIR. Correcto en fase pre-appointment; bloqueante para arranque H1 efectivo. A cubrir en proceso de appointment con cadena de suministro.
+4. **Confirmación compatibilidad Revit IFC Exporter 25.x** — el JSON `revit_ifc_export_config.json` v0.4 está probado en Exporter 24.1.0. Cuando Autodesk publique 25.x, re-test obligatorio antes de elevar `min_ifc_exporter_version` en `_NEXUM_metadata`.
+5. **Operador PBSA designado** — R-04 del Risk Register depende de coordinación con operador PBSA antes de H1. Sin operador designado, IDS-FM para H4 no puede cerrarse con propiedades exigidas reales.

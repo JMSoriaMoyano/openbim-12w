@@ -13,6 +13,7 @@
 | 0.2 | 18/05/2026 | Todo el documento | Particularización a Can Cabassa PBSA tras S2·L (5 decisiones de diseño) |
 | 0.3 | 18/05/2026 | §3.1 (nueva) | Formalización de MVD aplicable (Reference View por defecto, DTV bilateral acordado) |
 | 0.4 | 18/05/2026 | §3 / §3.1.6 (nueva) | Incorporación de bSDD como fuente única de clasificaciones y propiedades; trazabilidad por URI |
+| 0.5 | 24/05/2026 | Dudas pendientes | Cierre E2 (sesión S2·S): población de Dudas pendientes con 5 items reales identificados durante verificación ISO 19650 |
 
 ## Preámbulo — Cascada de requisitos asumida
 
@@ -284,6 +285,8 @@ Un entregable se considera aceptado cuando:
 
 ## Dudas pendientes
 
-1.
-2.
-3.
+1. **URI definitiva GuBIMClass en bSDD** — §3.1.6.1 marca el URI como `[BSDD-URI-PENDING-S3L]`. Bloqueante para validación automática IDS. A confirmar en sesión S3·L del 25/05/2026 mediante consulta a [bSDD Search](https://search.bsdd.buildingsmart.org/).
+2. **MVD definitivo para urbanización (URB)** — §3.1.1 asume IFC4.3 Reference View para URB. Si el equipo no domina IFC4.3 (riesgo R-06 del BEP), procede fallback a IFC4 Add2 RV. Decisión a tomar en H1 pre-kick-off.
+3. **Plataforma CDE concreta** — §5 deja la plataforma abierta al Lead Appointed Party en el Pre-BEP. Cualquier candidato debe cumplir los 6 requisitos funcionales declarados (compatibilidad OpenBIM nativa, estados ISO 19650-1 §12, auditoría, control de acceso, retención 10 años, API).
+4. **Roles nominales ISO 19650** — §6 mantiene Lead Appointed Party, Appointed Parties e Information Manager como `_(a designar)_`. Correcto en fase pre-appointment; los nombres se fijarán en el contrato de cada appointment.
+5. **Cláusulas comerciales pendientes** — §7 deja como `_(a definir)_` penalizaciones por incumplimiento del MIDP y propiedad intelectual de los modelos. A cerrar antes de la firma del appointment.
