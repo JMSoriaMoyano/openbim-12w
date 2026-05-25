@@ -29,6 +29,13 @@ reports/*.json
 # IFC pesados (>50 MB) — opcional, descomenta si aplica
 # models/*.ifc
 
+
+
+
 # Blender
 *.blend1
 *.blend2
+
+# IFC samples descargados localmente (no versionar)
+# Manifest oficial está en models/samples/SOURCES.md
+models/samples/_local/
