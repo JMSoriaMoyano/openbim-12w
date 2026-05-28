@@ -1,0 +1,3 @@
+# Este directorio guarda los informes de ejecución del script s3l_ifc_inspect.py
+# Los .md de cada run NO se versionan (ver .gitignore). Este .gitkeep solo
+# preserva la existencia del directorio en git.

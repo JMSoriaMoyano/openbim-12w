@@ -2,86 +2,52 @@
 s3l_ifc_inspect.py — Inspector mínimo de IFC
 
 Sesión:        S3·L (semana 3, lunes) · 25/05/2026
-Nivel:         2 (pseudocódigo + walkthrough conceptual)
-Estado:        v0.1 — ESQUELETO. La implementación real con IfcOpenShell se hace en S4·L.
+               S3·X (semana 3, miércoles) · 27/05/2026 [recuperación 28/05]
+Nivel:         3 (4 funciones implementadas con IfcOpenShell; resto pseudocódigo)
+Estado:        v0.2 — Bloque A operativo. open_ifc, report_header,
+               walk_spatial_pyramid y count_physical_elements funcionan
+               contra el modelo real. Resto de funciones siguen como stub
+               hasta S4·L y S6·L.
 Schema base:   IFC4 (IFC4 ADD2 TC1)
 Modelo:        models/samples/_local/AC20-FZK-Haus.ifc
 SHA-256:       70cc8ff245fc0894201d96496c031005a5cbd7a96b22d8a1b87c5a883fb77994
 
-Propósito de este fichero
--------------------------
-Este script NO ejecuta nada todavía. Es el contrato funcional + esqueleto:
+Cambios v0.2 (S3·X)
+-------------------
+- Añadido `import ifcopenshell`.
+- Implementadas: open_ifc, report_header, walk_spatial_pyramid,
+  count_physical_elements.
+- Añadido writer dual: consola + `out/S3X_lab_run_<timestamp>.md`.
+- main() orquesta el flujo completo y produce informe Markdown.
 
-  1. Define la API pública (funciones, contratos, tipos de retorno).
-  2. Documenta el algoritmo de cada bloque en lenguaje natural y
-     mediante stubs con `raise NotImplementedError("...")`.
-  3. Incluye el bloque de verificación SHA-256 + carga (paso 0)
-     que en S4·L será lo único que cambie: añadir `ifcopenshell.open()`
-     y rellenar las funciones.
+Pendientes para S4·L (que se rellenan con la misma API)
+-------------------------------------------------------
+  list_elements_per_storey, count_relationships, explain_entity,
+  validate_doors_have_openings, validate_unique_project
 
-Cómo evolucionará en S4·L (semana 4, lunes — "IfcOpenShell: lectura y consultas")
---------------------------------------------------------------------------------
-- Se añadirá `import ifcopenshell`.
-- Cada `raise NotImplementedError(...)` se reemplazará por consultas
-  reales (`model.by_type("IfcProject")`, `ifcopenshell.util.element.get_psets()`).
-- Se añadirá un `pytest` mínimo en `tests/test_s3l_ifc_inspect.py`
-  con asserts contra el FZK-Haus (1 IfcProject, 13 IfcWallStandardCase, 482
-  IfcRelDefinesByProperties, etc. — conteos extraídos en S3·L).
-
-Ejecución prevista (S4·L)
--------------------------
+Ejecución
+---------
+  python scripts/s3l_ifc_inspect.py
   python scripts/s3l_ifc_inspect.py models/samples/_local/AC20-FZK-Haus.ifc
 
-Salida prevista (S4·L)
-----------------------
-  === HEADER ===
-  Schema declarado: IFC4
-  MVD: ViewDefinition [, QuantityTakeOffAddOnView, SpaceBoundary2ndLevelAddOnView]
-  Originating: GRAPHISOFT ARCHICAD-64 20.0.0 GER FULL
-  Fecha: 2016-12-21T17:54:06
-
-  === Pirámide espacial ===
-  IfcProject       'Projekt-FZK-Haus' (0lY6P5Ur90TAQnnnI6wtnb)
-   └── IfcSite      'Gelaende' (lat 49°6'N, lon 8°26'E, elev 110m)
-        └── IfcBuilding 'FZK-Haus / Wohnhaus'
-             ├── IfcBuildingStorey 'Erdgeschoss'  (Z=0.0m, 6 spaces, 38 elementos)
-             └── IfcBuildingStorey 'Dachgeschoss' (Z=2.7m, 1 space, ~58 elementos)
-
-  === Conteo de elementos físicos ===
-  IfcWallStandardCase ........... 13
-  IfcSlab .......................  4
-  IfcWindow ..................... 11
-  IfcDoor .......................  5
-  IfcStair ......................  1
-  IfcRailing ....................  2
-  IfcOpeningElement ............. 17
-
-  === Inventario de relaciones ===
-  IfcRelDefinesByProperties ...... 482
-  IfcRelSpaceBoundary ............  81
-  IfcRelAssociatesMaterial .......  21
-  IfcRelDefinesByType ............  18
-  IfcRelVoidsElement .............  17
-  IfcRelFillsElement .............  16
-  IfcRelConnectsPathElements .....  16
-  IfcRelAggregates ...............   5
-  IfcRelContainedInSpatialStructure  2
-  IfcRelAssociatesClassification .   1
+Salida
+------
+  - Consola: log completo de la inspección.
+  - Fichero: out/S3X_lab_run_YYYYMMDD_HHMMSS.md (versión Markdown del log
+    + tabla de invariantes verificados contra EXPECTED_COUNTS_FZK).
 """
 
 from __future__ import annotations
 
 import hashlib
 import sys
+from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
-# En S4·L se descomentará:
-# import ifcopenshell
-# import ifcopenshell.util.element
+import ifcopenshell
 
 if TYPE_CHECKING:
-    # Para type hints sin import real todavía
     from typing import Any
     IfcFile = Any  # ifcopenshell.file
     IfcEntity = Any  # ifcopenshell.entity_instance
@@ -98,6 +64,9 @@ EXPECTED_SHA256: str = (
 
 DEFAULT_IFC_PATH: Path = Path("models/samples/_local/AC20-FZK-Haus.ifc")
 """Ruta relativa al fichero de referencia (Opción B: no versionado en git)."""
+
+OUT_DIR: Path = Path("out")
+"""Directorio donde se escriben los informes de ejecución (git-ignored)."""
 
 # Conteos esperados del FZK-Haus, usados como validación cruzada en S4·L
 # y como casos de test en tests/test_s3l_ifc_inspect.py
@@ -132,7 +101,37 @@ EXPECTED_COUNTS_FZK: dict[str, int] = {
 
 
 # =============================================================================
-# 1. VERIFICACIÓN DE INTEGRIDAD (HOY YA SE PUEDE EJECUTAR)
+# Writer dual: imprime a consola Y acumula líneas para el informe Markdown
+# =============================================================================
+
+class DualWriter:
+    """Acumula líneas de log y las vuelca tanto a stdout como a un fichero .md."""
+
+    def __init__(self) -> None:
+        self.lines: list[str] = []
+
+    def line(self, text: str = "") -> None:
+        print(text)
+        self.lines.append(text)
+
+    def heading(self, text: str, level: int = 2) -> None:
+        prefix = "#" * level
+        print(text)
+        self.lines.append(f"{prefix} {text}")
+
+    def code(self, text: str, lang: str = "") -> None:
+        print(text)
+        self.lines.append(f"```{lang}")
+        self.lines.append(text)
+        self.lines.append("```")
+
+    def save(self, out_path: Path) -> None:
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text("\n".join(self.lines) + "\n", encoding="utf-8")
+
+
+# =============================================================================
+# 1. VERIFICACIÓN DE INTEGRIDAD
 # =============================================================================
 
 def verify_sha256(ifc_path: Path, expected: str = EXPECTED_SHA256) -> None:
@@ -143,9 +142,6 @@ def verify_sha256(ifc_path: Path, expected: str = EXPECTED_SHA256) -> None:
     - Si el fichero no existe → FileNotFoundError con instrucciones de descarga.
     - Si el SHA-256 no coincide → ValueError con ambos hashes para diagnóstico.
     - Si coincide → retorno silencioso.
-
-    Esta función es la ÚNICA que ya funciona en S3·L. Las siguientes son
-    pseudocódigo hasta S4·L.
     """
     if not ifc_path.exists():
         raise FileNotFoundError(
@@ -170,217 +166,283 @@ def verify_sha256(ifc_path: Path, expected: str = EXPECTED_SHA256) -> None:
 
 
 # =============================================================================
-# 2. APERTURA DEL MODELO  (NIVEL 2 — pseudocódigo)
+# 2. APERTURA DEL MODELO  [v0.2 — implementado]
 # =============================================================================
 
 def open_ifc(ifc_path: Path) -> "IfcFile":
     """
-    Abre el fichero IFC con IfcOpenShell.
+    Abre el fichero IFC con IfcOpenShell tras verificar el SHA-256.
 
-    [S4·L] Implementación:
-        return ifcopenshell.open(str(ifc_path))
+    Returns:
+        ifcopenshell.file: modelo cargado en memoria.
 
-    [S4·L] Validación adicional recomendada:
-        - Comprobar que model.schema == "IFC4" (o lo declarado en SOURCES.md).
-        - Comprobar que model.by_type("IfcProject") tiene exactamente 1 entidad.
-        - Log: número total de entidades (model.by_type("IfcRoot")).
+    Raises:
+        FileNotFoundError / ValueError: ver verify_sha256().
+        RuntimeError: si IfcOpenShell no consigue parsear el SPF.
     """
-    raise NotImplementedError("S4·L: implementar con ifcopenshell.open()")
+    verify_sha256(ifc_path)
+    try:
+        model = ifcopenshell.open(str(ifc_path))
+    except Exception as e:
+        raise RuntimeError(
+            f"IfcOpenShell no pudo abrir {ifc_path}: {e}"
+        ) from e
+    return model
 
 
 # =============================================================================
-# 3. HEADER (Bloque A §6.1)
+# 3. HEADER  [v0.2 — implementado]
 # =============================================================================
 
 def report_header(model: "IfcFile") -> dict:
     """
-    Extrae metadatos del HEADER del SPF.
+    Extrae metadatos del HEADER del SPF (sección STEP previa a DATA).
 
-    [S4·L] Implementación esperada (devuelve dict):
-        {
-            "schema":      model.schema,                 # 'IFC4'
-            "mvd":         model.wrapped_data.header.file_description.description,
-            "filename":    model.wrapped_data.header.file_name.name,
-            "timestamp":   model.wrapped_data.header.file_name.time_stamp,
-            "author":      model.wrapped_data.header.file_name.author,
-            "organization": model.wrapped_data.header.file_name.organization,
-            "originating_system": model.wrapped_data.header.file_name.originating_system,
-        }
+    En IfcOpenShell 0.8.x se accede vía model.wrapped_data.header() (función).
+    Cada sub-bloque (file_description, file_name, file_schema) se expone como
+    método *_py() que devuelve un entity_instance estilo IFC.
 
-    En el FZK-Haus debe devolver:
-        schema = 'IFC4'
-        mvd contiene 'ViewDefinition' + 'QuantityTakeOffAddOnView' + 'SpaceBoundary2ndLevelAddOnView'
-        originating_system contiene 'GRAPHISOFT ARCHICAD-64 20.0.0'
+    Returns:
+        dict con: schema, mvd, options_count, filename, timestamp, author,
+        organization, preprocessor_version, originating_system, authorization.
     """
-    raise NotImplementedError("S4·L: parsear HEADER del SPF")
+    h = model.wrapped_data.header()
+    fd = h.file_description_py()
+    fn = h.file_name_py()
+    fs = h.file_schema_py()
+
+    # file_description.description es una tupla de strings. El primer elemento
+    # contiene la MVD; los siguientes son Options del exportador.
+    desc_raw = fd.to_string()
+    # Extracción pragmática: primer string entre comillas tras FILE_DESCRIPTION((
+    # Para el FZK-Haus el MVD está en la primera entrada.
+    mvd = ""
+    if "ViewDefinition" in desc_raw:
+        # Localizamos el primer 'ViewDefinition' y leemos hasta la siguiente coma cierre
+        start = desc_raw.find("'ViewDefinition")
+        if start != -1:
+            end = desc_raw.find("'", start + 1)
+            mvd = desc_raw[start + 1:end]
+
+    options_count = desc_raw.count("Option [")
+
+    # Helper para parsear FILE_NAME(...) string
+    def _attr(entity_str: str, idx: int) -> str:
+        """Extrae el atributo número idx (0-based) de una representación STEP."""
+        try:
+            # Parser muy simple: separa por comas top-level
+            inside = entity_str[entity_str.index("(") + 1:entity_str.rindex(")")]
+            depth = 0
+            current = ""
+            items = []
+            for c in inside:
+                if c == "(":
+                    depth += 1
+                    current += c
+                elif c == ")":
+                    depth -= 1
+                    current += c
+                elif c == "," and depth == 0:
+                    items.append(current.strip())
+                    current = ""
+                else:
+                    current += c
+            items.append(current.strip())
+            val = items[idx]
+            return val.strip("'").strip("(").strip(")").strip("'")
+        except Exception:
+            return ""
+
+    name_str = fn.to_string()
+    schema_str = fs.to_string()
+
+    return {
+        "schema": model.schema,
+        "schema_header": _attr(schema_str, 0),
+        "mvd": mvd,
+        "options_count": options_count,
+        "filename": _attr(name_str, 0),
+        "timestamp": _attr(name_str, 1),
+        "author": _attr(name_str, 2),
+        "organization": _attr(name_str, 3),
+        "preprocessor_version": _attr(name_str, 4),
+        "originating_system": _attr(name_str, 5),
+        "authorization": _attr(name_str, 6),
+    }
 
 
 # =============================================================================
-# 4. PIRÁMIDE ESPACIAL (Bloque A §4, Bloque B §1.1)
+# 4. PIRÁMIDE ESPACIAL  [v0.2 — implementado]
 # =============================================================================
 
 def walk_spatial_pyramid(model: "IfcFile") -> dict:
     """
     Recorre la pirámide IfcProject → IfcSite → IfcBuilding → IfcBuildingStorey → IfcSpace
-    siguiendo `IfcRelAggregates`.
+    siguiendo el inverse attribute `IsDecomposedBy` (que materializa IfcRelAggregates).
 
-    Algoritmo:
-        1. Localizar el único IfcProject (assert: len == 1).
-        2. Para cada IfcProject, seguir IfcRelAggregates.IsDecomposedBy → IfcSite(s).
-        3. Para cada IfcSite, seguir IsDecomposedBy → IfcBuilding(s).
-        4. Para cada IfcBuilding, seguir IsDecomposedBy → IfcBuildingStorey(s).
-        5. Para cada Storey, seguir IsDecomposedBy → IfcSpace(s).
-
-    [S4·L] La navegación inversa usa el inverse attribute `IsDecomposedBy`:
-        for rel_agg in project.IsDecomposedBy:
-            for site in rel_agg.RelatedObjects:
-                ...
-
-    Estructura de retorno (dict-tree):
-        {
-            "project": {"id": "#66", "guid": "0lY6P5Ur90TAQnnnI6wtnb", "name": "Projekt-FZK-Haus"},
-            "sites": [
-                {
-                    "id": "#389", "name": "Gelaende",
-                    "lat_long_elev": [(49,6,1,566000), (8,26,11,540400), 110.0],
-                    "buildings": [
-                        {
-                            "id": "#434", "name": "FZK-Haus",
-                            "storeys": [
-                                {"id": "#479", "name": "Erdgeschoss", "elevation": 0.0,
-                                 "spaces": [{"id": "#20909", "name": "Schlafzimmer"}, ...]},
-                                {"id": "#35065", "name": "Dachgeschoss", "elevation": 2.7,
-                                 "spaces": [...]}
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
+    Returns: árbol anidado con id, GlobalId, Name y atributos espaciales clave.
     """
-    raise NotImplementedError("S4·L: recorrer pirámide con IfcRelAggregates")
+    projects = model.by_type("IfcProject")
+    if len(projects) != 1:
+        raise ValueError(
+            f"Esperado exactamente 1 IfcProject, encontrados {len(projects)}"
+        )
+    project = projects[0]
+
+    def _site_to_dict(site) -> dict:
+        return {
+            "id": f"#{site.id()}",
+            "guid": site.GlobalId,
+            "name": site.Name,
+            "ref_latitude": list(site.RefLatitude) if site.RefLatitude else None,
+            "ref_longitude": list(site.RefLongitude) if site.RefLongitude else None,
+            "ref_elevation": site.RefElevation,
+            "buildings": [],
+        }
+
+    def _building_to_dict(b) -> dict:
+        return {
+            "id": f"#{b.id()}",
+            "guid": b.GlobalId,
+            "name": b.Name,
+            "long_name": b.LongName,
+            "storeys": [],
+        }
+
+    def _storey_to_dict(s) -> dict:
+        return {
+            "id": f"#{s.id()}",
+            "guid": s.GlobalId,
+            "name": s.Name,
+            "elevation": s.Elevation,
+            "spaces": [],
+        }
+
+    def _space_to_dict(sp) -> dict:
+        return {
+            "id": f"#{sp.id()}",
+            "guid": sp.GlobalId,
+            "name": sp.Name,
+            "long_name": sp.LongName,
+        }
+
+    tree = {
+        "project": {
+            "id": f"#{project.id()}",
+            "guid": project.GlobalId,
+            "name": project.Name,
+        },
+        "sites": [],
+    }
+
+    for rel_agg in project.IsDecomposedBy:
+        for site in rel_agg.RelatedObjects:
+            if not site.is_a("IfcSite"):
+                continue
+            site_d = _site_to_dict(site)
+            for rel_b in site.IsDecomposedBy:
+                for building in rel_b.RelatedObjects:
+                    if not building.is_a("IfcBuilding"):
+                        continue
+                    bld_d = _building_to_dict(building)
+                    for rel_s in building.IsDecomposedBy:
+                        for storey in rel_s.RelatedObjects:
+                            if not storey.is_a("IfcBuildingStorey"):
+                                continue
+                            st_d = _storey_to_dict(storey)
+                            for rel_sp in storey.IsDecomposedBy:
+                                for sp in rel_sp.RelatedObjects:
+                                    if sp.is_a("IfcSpace"):
+                                        st_d["spaces"].append(_space_to_dict(sp))
+                            bld_d["storeys"].append(st_d)
+                    site_d["buildings"].append(bld_d)
+            tree["sites"].append(site_d)
+
+    return tree
 
 
 # =============================================================================
-# 5. CONTENCIÓN ESPACIAL (Bloque B §1.2)
+# 5. CONTENCIÓN ESPACIAL [stub — S4·L]
 # =============================================================================
 
 def list_elements_per_storey(model: "IfcFile") -> dict[str, list[dict]]:
     """
     Lista los elementos físicos contenidos en cada planta usando
-    `IfcRelContainedInSpatialStructure`.
+    `IfcRelContainedInSpatialStructure` (inverse attribute `ContainsElements`).
 
-    Algoritmo:
-        Para cada IfcBuildingStorey:
-            rel = storey.ContainsElements  # inverse attr (LISTA de IfcRelContained...)
-            for r in rel:
-                for elem in r.RelatedElements:
-                    registrar (elem.GlobalId, elem.is_a(), elem.Name)
-
-    [S4·L] En FZK-Haus debe devolver:
-        {
-            "Erdgeschoss": [<38 elementos>],
-            "Dachgeschoss": [<~58 elementos>]
-        }
-
-    Donde cada elemento es:
-        {"id": "#14502", "guid": "...", "type": "IfcSlab", "name": "..."}
+    [S4·L] Pendiente implementación.
     """
     raise NotImplementedError("S4·L: usar inverse attr ContainsElements")
 
 
 # =============================================================================
-# 6. CONTEO DE ELEMENTOS FÍSICOS (Bloque B §0)
+# 6. CONTEO DE ELEMENTOS FÍSICOS  [v0.2 — implementado]
 # =============================================================================
+
+# Tipos que count_physical_elements interrogará por defecto. Mantener sincronizado
+# con EXPECTED_COUNTS_FZK para que la validación cruzada funcione sin gaps.
+PHYSICAL_TYPES: tuple[str, ...] = (
+    "IfcWall",
+    "IfcWallStandardCase",
+    "IfcSlab",
+    "IfcWindow",
+    "IfcDoor",
+    "IfcStair",
+    "IfcRailing",
+    "IfcOpeningElement",
+    "IfcRoof",
+    "IfcCovering",
+    "IfcFurnishingElement",
+)
+
 
 def count_physical_elements(model: "IfcFile") -> dict[str, int]:
     """
     Cuenta instancias de las clases físicas más relevantes.
 
-    [S4·L] Implementación:
-        types = ["IfcWall", "IfcWallStandardCase", "IfcSlab", "IfcWindow",
-                 "IfcDoor", "IfcStair", "IfcRailing", "IfcOpeningElement",
-                 "IfcRoof", "IfcCovering", "IfcFurnishingElement"]
-        return {t: len(model.by_type(t)) for t in types}
-
-    Validación cruzada contra EXPECTED_COUNTS_FZK (subset).
+    Nota técnica: model.by_type(t) por defecto incluye subtipos en
+    IfcOpenShell. Por eso `IfcWall` y `IfcWallStandardCase` pueden devolver
+    el mismo conteo si todas las paredes son del subtipo Standard (caso FZK).
+    Para excluir subtipos: model.by_type(t, include_subtypes=False).
     """
-    raise NotImplementedError("S4·L: usar model.by_type() para cada tipo")
+    return {t: len(model.by_type(t)) for t in PHYSICAL_TYPES}
 
 
 # =============================================================================
-# 7. INVENTARIO DE RELACIONES (Bloque B §0)
+# 7. INVENTARIO DE RELACIONES  [stub — S4·L]
 # =============================================================================
 
 def count_relationships(model: "IfcFile") -> dict[str, int]:
     """
     Cuenta instancias de cada subtipo de IfcRelationship.
 
-    [S4·L] Implementación:
-        rel_types = ["IfcRelAggregates", "IfcRelContainedInSpatialStructure",
-                     "IfcRelDefinesByType", "IfcRelDefinesByProperties",
-                     "IfcRelAssociatesMaterial", "IfcRelVoidsElement",
-                     "IfcRelFillsElement", "IfcRelConnectsPathElements",
-                     "IfcRelSpaceBoundary", "IfcRelAssociatesClassification",
-                     "IfcRelNests", "IfcRelAssignsToGroup"]
-        return {t: len(model.by_type(t)) for t in rel_types}
-
-    Validación cruzada contra EXPECTED_COUNTS_FZK (subset).
+    [S4·L] Pendiente implementación.
     """
     raise NotImplementedError("S4·L: usar model.by_type() para cada relación")
 
 
 # =============================================================================
-# 8. ANATOMÍA DE UNA ENTIDAD (Bloque B §4 — caso de estudio del muro #15042)
+# 8. ANATOMÍA DE UNA ENTIDAD  [stub — S4·L]
 # =============================================================================
 
 def explain_entity(model: "IfcFile", global_id: str) -> dict:
     """
     Devuelve TODAS las relaciones que tocan a una entidad concreta.
-    Es la materialización en código del 'caso de estudio del muro #15042'
-    de Bloque B §4.
 
-    Algoritmo:
-        elem = model.by_guid(global_id)
-        result = {
-            "type": elem.is_a(),
-            "name": elem.Name,
-            "contained_in": [...],          # IfcRelContainedInSpatialStructure (inv: ContainedInStructure)
-            "is_typed_by": [...],           # IfcRelDefinesByType            (inv: IsTypedBy)
-            "psets": [...],                 # IfcRelDefinesByProperties      (inv: IsDefinedBy)
-            "materials": [...],             # IfcRelAssociatesMaterial       (inv: HasAssociations filtrado)
-            "voids": [...],                 # IfcRelVoidsElement             (inv: HasOpenings)
-            "fills": [...],                 # IfcRelFillsElement             (inv: FillsVoids)
-            "connections": [...],           # IfcRelConnectsPathElements     (inv: ConnectedTo / ConnectedFrom)
-            "space_boundaries": [...],      # IfcRelSpaceBoundary            (inv: ProvidesBoundaries / BoundedBy)
-            "classifications": [...],       # IfcRelAssociatesClassification (inv: HasAssociations filtrado)
-        }
-
-    [S4·L] El acceso a estos inverse attributes es el "Santo Grial" de
-    IfcOpenShell — todo el modelo navega a través de ellos. Idem para
-    los descendientes (descomposición): inv `IsDecomposedBy` y `Decomposes`.
+    [S4·L] Pendiente implementación.
     """
     raise NotImplementedError("S4·L: usar inverse attributes para navegar")
 
 
 # =============================================================================
-# 9. VALIDACIONES DE COHERENCIA (Bloque B §1.6, §6)
+# 9. VALIDACIONES DE COHERENCIA  [stub — S4·L / S6·L]
 # =============================================================================
 
 def validate_doors_have_openings(model: "IfcFile") -> list[dict]:
     """
-    Reporta IfcDoor / IfcWindow que NO tienen IfcRelFillsElement asociada
-    (anomalía: puerta o ventana "flotante").
+    Reporta IfcDoor / IfcWindow que NO tienen IfcRelFillsElement asociada.
 
-    Algoritmo:
-        anomalies = []
-        for door in model.by_type("IfcDoor") + model.by_type("IfcWindow"):
-            if not door.FillsVoids:   # inverse attr
-                anomalies.append({"id": door.id(), "guid": door.GlobalId, ...})
-        return anomalies
-
-    [S4·L] En FZK-Haus: hay 5 doors + 11 windows = 16 carpinterías
-    y exactamente 16 IfcRelFillsElement → debe devolver lista vacía.
+    [S4·L] Pendiente implementación.
     """
     raise NotImplementedError("S4·L: validar inverse FillsVoids")
 
@@ -389,15 +451,96 @@ def validate_unique_project(model: "IfcFile") -> None:
     """
     Comprueba la invariante 'un solo IfcProject por fichero'.
 
-    [S4·L]:
-        projects = model.by_type("IfcProject")
-        assert len(projects) == 1, f"Esperado 1 IfcProject, encontrados {len(projects)}"
+    [S4·L] Pendiente implementación.
     """
     raise NotImplementedError("S4·L: aserción de unicidad IfcProject")
 
 
 # =============================================================================
-# 10. ENTRY POINT
+# 10. RENDERIZADO DEL INFORME (consola + Markdown)
+# =============================================================================
+
+def _render_header(w: DualWriter, header: dict) -> None:
+    w.heading("HEADER del SPF", level=2)
+    w.line()
+    w.line(f"- Schema (modelo)       : {header['schema']}")
+    w.line(f"- Schema (HEADER raw)   : {header['schema_header']}")
+    w.line(f"- MVD                   : {header['mvd']}")
+    w.line(f"- Options del exportador: {header['options_count']}")
+    w.line(f"- Filename              : {header['filename']}")
+    w.line(f"- Timestamp             : {header['timestamp']}")
+    w.line(f"- Author                : {header['author']}")
+    w.line(f"- Organization          : {header['organization']}")
+    w.line(f"- Preprocessor version  : {header['preprocessor_version']}")
+    w.line(f"- Originating system    : {header['originating_system']}")
+    w.line(f"- Authorization         : {header['authorization']}")
+    w.line()
+
+
+def _render_pyramid(w: DualWriter, tree: dict) -> None:
+    w.heading("Pirámide espacial", level=2)
+    w.line()
+    p = tree["project"]
+    w.line(f"IfcProject       {p['id']} '{p['name']}' (GUID: {p['guid']})")
+    for site in tree["sites"]:
+        lat = site["ref_latitude"]
+        lon = site["ref_longitude"]
+        lat_str = f"{lat[0]}°{lat[1]}'{lat[2]}\"N" if lat else "n/d"
+        lon_str = f"{lon[0]}°{lon[1]}'{lon[2]}\"E" if lon else "n/d"
+        w.line(
+            f" └── IfcSite      {site['id']} '{site['name']}' "
+            f"(lat {lat_str}, lon {lon_str}, elev {site['ref_elevation']}m)"
+        )
+        for b in site["buildings"]:
+            w.line(
+                f"      └── IfcBuilding {b['id']} '{b['name']}' "
+                f"(long_name: {b['long_name']})"
+            )
+            for st in b["storeys"]:
+                w.line(
+                    f"           └── IfcBuildingStorey {st['id']} '{st['name']}' "
+                    f"(Z={st['elevation']}m, {len(st['spaces'])} spaces)"
+                )
+                for sp in st["spaces"]:
+                    w.line(
+                        f"                   └── IfcSpace {sp['id']} "
+                        f"'{sp['name']}' ({sp['long_name']})"
+                    )
+    w.line()
+
+
+def _render_counts(w: DualWriter, counts: dict[str, int]) -> None:
+    w.heading("Conteo de elementos físicos", level=2)
+    w.line()
+    w.line("| Tipo                          | Conteo |")
+    w.line("|-------------------------------|-------:|")
+    for t, n in counts.items():
+        w.line(f"| {t:<29s} | {n:>6d} |")
+    w.line()
+
+
+def _render_invariants(w: DualWriter, model: "IfcFile") -> None:
+    w.heading("Validación cruzada vs EXPECTED_COUNTS_FZK", level=2)
+    w.line()
+    w.line("| Tipo                              | Esperado | Obtenido | Estado |")
+    w.line("|-----------------------------------|---------:|---------:|:------:|")
+    n_ok = 0
+    n_fail = 0
+    for t, exp in EXPECTED_COUNTS_FZK.items():
+        got = len(model.by_type(t))
+        status = "OK" if got == exp else "FAIL"
+        if got == exp:
+            n_ok += 1
+        else:
+            n_fail += 1
+        w.line(f"| {t:<33s} | {exp:>8d} | {got:>8d} |  {status:<4s}  |")
+    w.line()
+    w.line(f"**Resumen:** {n_ok} OK · {n_fail} FAIL · {len(EXPECTED_COUNTS_FZK)} total")
+    w.line()
+
+
+# =============================================================================
+# 11. ENTRY POINT
 # =============================================================================
 
 def main(argv: list[str]) -> int:
@@ -406,41 +549,63 @@ def main(argv: list[str]) -> int:
 
     Uso:
         python scripts/s3l_ifc_inspect.py [ruta_al_ifc]
-
-    En S3·L (hoy) ejecuta solo verify_sha256() + imprime "OK, listo para S4·L".
-    En S4·L se rellena con las 9 funciones de arriba.
     """
     if len(argv) > 1:
         ifc_path = Path(argv[1])
     else:
         ifc_path = DEFAULT_IFC_PATH
 
-    print(f"[S3·L] Inspector IFC v0.1 (Nivel 2 - pseudocódigo)")
-    print(f"[S3·L] Fichero objetivo: {ifc_path}")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    out_path = OUT_DIR / f"S3X_lab_run_{timestamp}.md"
+
+    w = DualWriter()
+    w.heading(f"Lab S3·X — Inspección IFC", level=1)
+    w.line()
+    w.line(f"- Fecha de ejecución : {datetime.now().isoformat(timespec='seconds')}")
+    w.line(f"- Fichero IFC        : `{ifc_path}`")
+    w.line(f"- Script             : `scripts/s3l_ifc_inspect.py` v0.2")
+    w.line(f"- IfcOpenShell       : {ifcopenshell.version}")
+    w.line()
 
     try:
-        verify_sha256(ifc_path)
-        print(f"[S3·L] ✓ SHA-256 verificado: {EXPECTED_SHA256}")
-    except (FileNotFoundError, ValueError) as e:
-        print(f"[S3·L] ✗ Error: {e}", file=sys.stderr)
+        model = open_ifc(ifc_path)
+    except (FileNotFoundError, ValueError, RuntimeError) as e:
+        w.heading("ERROR al abrir el modelo", level=2)
+        w.code(str(e))
+        w.save(out_path)
+        print(f"\n[!] Informe parcial guardado en: {out_path}", file=sys.stderr)
         return 1
 
-    print(f"[S3·L] ✓ Listo para implementación real en S4·L")
-    print(f"[S3·L]   Funciones pendientes:")
+    w.line(f"- SHA-256 verificado : `{EXPECTED_SHA256}`")
+    w.line(f"- Entidades totales  : {len(list(model))}")
+    w.line()
+
+    header = report_header(model)
+    _render_header(w, header)
+
+    tree = walk_spatial_pyramid(model)
+    _render_pyramid(w, tree)
+
+    counts = count_physical_elements(model)
+    _render_counts(w, counts)
+
+    _render_invariants(w, model)
+
+    w.heading("Funciones pendientes para S4·L", level=2)
+    w.line()
     pending = [
-        "open_ifc()",
-        "report_header()",
-        "walk_spatial_pyramid()",
-        "list_elements_per_storey()",
-        "count_physical_elements()",
-        "count_relationships()",
-        "explain_entity()",
-        "validate_doors_have_openings()",
-        "validate_unique_project()",
+        "list_elements_per_storey",
+        "count_relationships",
+        "explain_entity",
+        "validate_doors_have_openings",
+        "validate_unique_project",
     ]
     for p in pending:
-        print(f"[S3·L]    - {p}")
+        w.line(f"- `{p}`")
+    w.line()
 
+    w.save(out_path)
+    print(f"\n[OK] Informe guardado en: {out_path}")
     return 0
 
 
