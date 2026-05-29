@@ -2,39 +2,47 @@
 s3l_ifc_inspect.py — Inspector mínimo de IFC
 
 Sesión:        S3·L (semana 3, lunes) · 25/05/2026
-               S3·X (semana 3, miércoles) · 27/05/2026 [recuperación 28/05]
-Nivel:         3 (4 funciones implementadas con IfcOpenShell; resto pseudocódigo)
-Estado:        v0.2 — Bloque A operativo. open_ifc, report_header,
-               walk_spatial_pyramid y count_physical_elements funcionan
-               contra el modelo real. Resto de funciones siguen como stub
-               hasta S4·L y S6·L.
+               S3·X (semana 3, miércoles) · 27/05/2026 [recuperación 28-29/05]
+Nivel:         3 (6 funciones implementadas con IfcOpenShell; resto pseudocódigo)
+Estado:        v0.3 — Bloques A+B+C operativos.
 Schema base:   IFC4 (IFC4 ADD2 TC1)
 Modelo:        models/samples/_local/AC20-FZK-Haus.ifc
 SHA-256:       70cc8ff245fc0894201d96496c031005a5cbd7a96b22d8a1b87c5a883fb77994
 
-Cambios v0.2 (S3·X)
--------------------
-- Añadido `import ifcopenshell`.
-- Implementadas: open_ifc, report_header, walk_spatial_pyramid,
-  count_physical_elements.
-- Añadido writer dual: consola + `out/S3X_lab_run_<timestamp>.md`.
-- main() orquesta el flujo completo y produce informe Markdown.
+Funciones implementadas
+-----------------------
+  open_ifc                  (v0.2 · S3·X-A)
+  report_header             (v0.2 · S3·X-A)
+  walk_spatial_pyramid      (v0.2 · S3·X-A)
+  count_physical_elements   (v0.2 · S3·X-A)
+  check_minimum_psets       (v0.3 · S3·X-C · auditoría Psets NEXUM)
+  explain_entity            (v0.3 · S3·X-C · anatomía completa por GUID)
 
-Pendientes para S4·L (que se rellenan con la misma API)
--------------------------------------------------------
-  list_elements_per_storey, count_relationships, explain_entity,
+Cambios v0.3 (S3·X Bloque C)
+----------------------------
+- Añadida tabla constante PSETS_NEXUM (Psets mínimos por clase, derivada
+  del dictamen D3B-01 en docs/S3X_dudas_resueltas.md).
+- Implementadas check_minimum_psets() y explain_entity().
+- main() amplía el informe con dos bloques nuevos: "Auditoría Pset NEXUM" y
+  "Anatomía del muro #15042".
+- CLI extendido con segundo argumento opcional para inspeccionar otra entidad
+  vía GUID en lugar del muro de referencia.
+
+Pendientes para S4·L
+--------------------
+  list_elements_per_storey, count_relationships,
   validate_doors_have_openings, validate_unique_project
 
 Ejecución
 ---------
   python scripts/s3l_ifc_inspect.py
   python scripts/s3l_ifc_inspect.py models/samples/_local/AC20-FZK-Haus.ifc
+  python scripts/s3l_ifc_inspect.py models/samples/_local/AC20-FZK-Haus.ifc 2XPyKWY018sA1ygZKgQPtU
 
 Salida
 ------
   - Consola: log completo de la inspección.
-  - Fichero: out/S3X_lab_run_YYYYMMDD_HHMMSS.md (versión Markdown del log
-    + tabla de invariantes verificados contra EXPECTED_COUNTS_FZK).
+  - Fichero: out/S3X_lab_run_YYYYMMDD_HHMMSS.md.
 """
 
 from __future__ import annotations
@@ -396,6 +404,55 @@ PHYSICAL_TYPES: tuple[str, ...] = (
 )
 
 
+# =============================================================================
+# Psets mínimos NEXUM (dictamen D3B-01 · docs/S3X_dudas_resueltas.md)
+# =============================================================================
+# Mapa: nombre de clase IFC → { nombre del Pset/Qto → lista de propiedades obligatorias }
+# Si una propiedad está presente pero su valor es None, también cuenta como ausente.
+# Solo se evalúan instancias de la clase EXACTA (no subtipos) — la auditoría se
+# diseña por clase efectiva, no por jerarquía.
+PSETS_NEXUM: dict[str, dict[str, list[str]]] = {
+    "IfcWallStandardCase": {
+        "Pset_WallCommon": [
+            "Reference", "LoadBearing", "IsExternal",
+            "FireRating", "AcousticRating", "ThermalTransmittance",
+        ],
+        "Qto_WallBaseQuantities": [
+            "Length", "Height", "Width", "GrossSideArea", "NetVolume",
+        ],
+    },
+    "IfcSlab": {
+        "Pset_SlabCommon": [
+            "Reference", "LoadBearing", "IsExternal",
+            "FireRating", "AcousticRating", "ThermalTransmittance",
+        ],
+        "Qto_SlabBaseQuantities": [
+            "GrossArea", "Perimeter", "Width", "GrossVolume",
+        ],
+    },
+    "IfcWindow": {
+        "Pset_WindowCommon": [
+            "Reference", "IsExternal", "FireRating",
+            "ThermalTransmittance", "AcousticRating", "Infiltration",
+        ],
+        "Qto_WindowBaseQuantities": ["Width", "Height", "Area"],
+    },
+    "IfcDoor": {
+        "Pset_DoorCommon": [
+            "Reference", "IsExternal", "FireRating",
+            "ThermalTransmittance", "AcousticRating", "Infiltration",
+        ],
+        "Qto_DoorBaseQuantities": ["Width", "Height", "Area"],
+    },
+    "IfcSpace": {
+        "Pset_SpaceCommon": ["Reference", "Category", "PubliclyAccessible"],
+        "Qto_SpaceBaseQuantities": [
+            "NetFloorArea", "GrossFloorArea", "NetVolume", "NetCeilingArea",
+        ],
+    },
+}
+
+
 def count_physical_elements(model: "IfcFile") -> dict[str, int]:
     """
     Cuenta instancias de las clases físicas más relevantes.
@@ -422,16 +479,208 @@ def count_relationships(model: "IfcFile") -> dict[str, int]:
 
 
 # =============================================================================
-# 8. ANATOMÍA DE UNA ENTIDAD  [stub — S4·L]
+# 7-bis. AUDITORÍA DE PSETS NEXUM  [v0.3 — implementado]
+# =============================================================================
+
+def check_minimum_psets(
+    model: "IfcFile",
+    rules: dict[str, dict[str, list[str]]] = PSETS_NEXUM,
+) -> dict[str, dict]:
+    """
+    Audita el cumplimiento de los Psets mínimos NEXUM por clase IFC.
+
+    Para cada clase listada en `rules`:
+    1. Localiza todas las instancias de la clase EXACTA (sin subtipos).
+    2. Por cada instancia, comprueba que cada Pset/Qto exigido está presente
+       y que cada propiedad obligatoria tiene un valor no nulo.
+    3. Acumula estadísticas: total, conformes, no conformes, Psets ausentes,
+       propiedades ausentes (top contadores).
+
+    Returns:
+        dict[class_name] -> {
+            "total": int,
+            "compliant": int,
+            "non_compliant": int,
+            "missing_psets": dict[pset_name -> count],
+            "missing_props": dict["pset.prop" -> count],
+        }
+
+    Notas técnicas
+    --------------
+    - Se usa `ifcopenshell.util.element.get_psets()` que normaliza el acceso
+      a IfcPropertySet y IfcElementQuantity bajo un dict uniforme.
+    - Una propiedad presente con valor `None` cuenta como AUSENTE (un IFC
+      válido puede declarar la clave pero dejar el valor sin asignar).
+    - El validador NO acepta variantes históricas como `BaseQuantities` (sin
+      prefijo `Qto_Wall`). Esa decisión está alineada con el dictamen D3B-01:
+      NEXUM exige nombres canónicos buildingSMART.
+    """
+    import ifcopenshell.util.element  # local import: solo necesario aquí
+
+    results: dict[str, dict] = {}
+    for class_name, expected in rules.items():
+        elements = model.by_type(class_name, include_subtypes=False)
+        summary = {
+            "total": len(elements),
+            "compliant": 0,
+            "non_compliant": 0,
+            "missing_psets": {},
+            "missing_props": {},
+        }
+        for e in elements:
+            psets = ifcopenshell.util.element.get_psets(e)
+            ok = True
+            for pset_name, props_needed in expected.items():
+                if pset_name not in psets:
+                    summary["missing_psets"][pset_name] = (
+                        summary["missing_psets"].get(pset_name, 0) + 1
+                    )
+                    ok = False
+                    continue
+                pset_props = psets[pset_name]
+                for prop in props_needed:
+                    if prop not in pset_props or pset_props[prop] is None:
+                        key = f"{pset_name}.{prop}"
+                        summary["missing_props"][key] = (
+                            summary["missing_props"].get(key, 0) + 1
+                        )
+                        ok = False
+            if ok:
+                summary["compliant"] += 1
+            else:
+                summary["non_compliant"] += 1
+        results[class_name] = summary
+    return results
+
+
+# =============================================================================
+# 8. ANATOMÍA DE UNA ENTIDAD  [v0.3 — implementado]
 # =============================================================================
 
 def explain_entity(model: "IfcFile", global_id: str) -> dict:
     """
     Devuelve TODAS las relaciones que tocan a una entidad concreta.
 
-    [S4·L] Pendiente implementación.
+    Args:
+        model: modelo IFC cargado.
+        global_id: GlobalId (GUID base64 de 22 caracteres) de la entidad.
+
+    Returns:
+        dict con la anatomía completa: identidad, contención espacial, tipo,
+        propiedades, materiales, huecos+fillers, conexiones path y boundaries.
+
+    Estructura del retorno
+    ----------------------
+        {
+          "identity": {"id", "guid", "class", "name", "object_type",
+                       "predefined_type"},
+          "contained_in": ["#479 IfcBuildingStorey 'Erdgeschoss'", ...],
+          "types":        ["#15234 IfcWallType 'Leichtbeton 102890359 240'", ...],
+          "properties":   ["IfcPropertySet 'Pset_WallCommon'", ...],
+          "materials":    ["IfcMaterialLayerSetUsage", ...],
+          "openings":     [{"opening": "#... 'Innentuer-1'", "filled_by":
+                            "#... 'Tuer-EG-1' (IfcDoor)"}, ...],
+          "connections":  ["#17040 IfcWallStandardCase 'Wand-Int-ERDG-2'", ...],
+          "boundaries":   [{"space": "#20909 '4'", "name": "2ndLevel",
+                            "description": "2a", "physical": "PHYSICAL",
+                            "internal": "INTERNAL"}, ...],
+        }
+
+    Raises:
+        ValueError: si no existe una entidad con ese GlobalId en el modelo.
     """
-    raise NotImplementedError("S4·L: usar inverse attributes para navegar")
+    target = model.by_guid(global_id) if hasattr(model, "by_guid") else None
+    if target is None:
+        # Fallback: búsqueda manual
+        matches = [e for e in model if hasattr(e, "GlobalId") and e.GlobalId == global_id]
+        if not matches:
+            raise ValueError(f"No existe entidad con GlobalId='{global_id}' en el modelo")
+        target = matches[0]
+
+    def _ref(e) -> str:
+        """Representación corta de una entidad IFC."""
+        name = getattr(e, "Name", None) or ""
+        return f"#{e.id()} {e.is_a()} '{name}'"
+
+    out: dict = {
+        "identity": {
+            "id": f"#{target.id()}",
+            "guid": target.GlobalId,
+            "class": target.is_a(),
+            "name": target.Name,
+            "object_type": getattr(target, "ObjectType", None),
+            "predefined_type": getattr(target, "PredefinedType", None),
+        },
+        "contained_in": [],
+        "types": [],
+        "properties": [],
+        "materials": [],
+        "openings": [],
+        "connections": [],
+        "boundaries": [],
+    }
+
+    # Contención espacial (ContainedInStructure → IfcRelContainedInSpatialStructure)
+    for rel in getattr(target, "ContainedInStructure", []) or []:
+        out["contained_in"].append(_ref(rel.RelatingStructure))
+
+    # Tipo (IsTypedBy → IfcRelDefinesByType)
+    for rel in getattr(target, "IsTypedBy", []) or []:
+        out["types"].append(_ref(rel.RelatingType))
+
+    # Propiedades y cantidades (IsDefinedBy → IfcRelDefinesByProperties)
+    for rel in getattr(target, "IsDefinedBy", []) or []:
+        if rel.is_a("IfcRelDefinesByProperties"):
+            defs = rel.RelatingPropertyDefinition
+            name = getattr(defs, "Name", "") or ""
+            out["properties"].append(f"{defs.is_a()} '{name}'")
+
+    # Asociaciones (HasAssociations → IfcRelAssociatesMaterial / Classification)
+    for rel in getattr(target, "HasAssociations", []) or []:
+        related = None
+        if hasattr(rel, "RelatingMaterial"):
+            related = rel.RelatingMaterial
+        elif hasattr(rel, "RelatingClassification"):
+            related = rel.RelatingClassification
+        if related is not None:
+            label = related.is_a() if hasattr(related, "is_a") else str(related)
+            out["materials"].append(f"{rel.is_a()} → {label}")
+
+    # Huecos (HasOpenings → IfcRelVoidsElement) y sus fillers (HasFillings)
+    for rel in getattr(target, "HasOpenings", []) or []:
+        opening = rel.RelatedOpeningElement
+        entry = {"opening": _ref(opening), "filled_by": None}
+        for fill_rel in getattr(opening, "HasFillings", []) or []:
+            filler = fill_rel.RelatedBuildingElement
+            entry["filled_by"] = _ref(filler)
+        out["openings"].append(entry)
+
+    # Conexiones (ConnectedTo + ConnectedFrom → IfcRelConnectsPathElements y similares)
+    connected = []
+    for rel in getattr(target, "ConnectedTo", []) or []:
+        other = rel.RelatedElement
+        if other.id() != target.id():
+            connected.append(_ref(other))
+    for rel in getattr(target, "ConnectedFrom", []) or []:
+        other = rel.RelatingElement
+        if other.id() != target.id():
+            connected.append(_ref(other))
+    out["connections"] = connected
+
+    # Boundaries (inverso: barremos todas las IfcRelSpaceBoundary)
+    for sb in model.by_type("IfcRelSpaceBoundary"):
+        if sb.RelatedBuildingElement and sb.RelatedBuildingElement.id() == target.id():
+            sp = sb.RelatingSpace
+            sp_name = getattr(sp, "Name", None) or ""
+            out["boundaries"].append({
+                "space": f"#{sp.id()} '{sp_name}'",
+                "name": sb.Name,
+                "description": sb.Description,
+                "physical": sb.PhysicalOrVirtualBoundary,
+                "internal": sb.InternalOrExternalBoundary,
+            })
+
+    return out
 
 
 # =============================================================================
@@ -539,6 +788,90 @@ def _render_invariants(w: DualWriter, model: "IfcFile") -> None:
     w.line()
 
 
+def _render_pset_audit(w: DualWriter, audit: dict[str, dict]) -> None:
+    w.heading("Auditoría Pset NEXUM", level=2)
+    w.line()
+    w.line("Resumen por clase (Psets mínimos según dictamen D3B-01):")
+    w.line()
+    w.line("| Clase                | Total | OK | No conformes | % cumplim. |")
+    w.line("|----------------------|------:|---:|-------------:|-----------:|")
+    for cls, s in audit.items():
+        pct = (s["compliant"] / s["total"] * 100) if s["total"] else 0
+        w.line(
+            f"| {cls:<20s} | {s['total']:>5d} | {s['compliant']:>2d} | "
+            f"{s['non_compliant']:>12d} | {pct:>9.0f}% |"
+        )
+    w.line()
+    # Detalle de propiedades ausentes (top 5 por clase)
+    w.heading("Detalle de propiedades ausentes (top 5 por clase)", level=3)
+    w.line()
+    for cls, s in audit.items():
+        if s["total"] == 0:
+            continue
+        w.line(f"**{cls}** ({s['total']} elementos):")
+        w.line()
+        if s["missing_psets"]:
+            for pset_name, count in s["missing_psets"].items():
+                w.line(f"- Pset entero ausente: `{pset_name}` en {count}/{s['total']} elementos")
+        if s["missing_props"]:
+            top = sorted(s["missing_props"].items(), key=lambda x: -x[1])[:5]
+            for prop_key, count in top:
+                w.line(f"- `{prop_key}` ausente en {count}/{s['total']} elementos")
+        w.line()
+
+
+def _render_entity_anatomy(w: DualWriter, anatomy: dict) -> None:
+    id_ = anatomy["identity"]
+    w.heading(f"Anatomía de {id_['id']} {id_['class']} '{id_['name']}'", level=2)
+    w.line()
+    w.line(f"- GlobalId        : `{id_['guid']}`")
+    w.line(f"- ObjectType      : {id_['object_type']}")
+    w.line(f"- PredefinedType  : {id_['predefined_type']}")
+    w.line()
+
+    sections = [
+        ("Contención espacial (IfcRelContainedInSpatialStructure)", "contained_in"),
+        ("Tipo (IfcRelDefinesByType)", "types"),
+        ("Propiedades y cantidades (IfcRelDefinesByProperties)", "properties"),
+        ("Materiales y clasificaciones (HasAssociations)", "materials"),
+        ("Conexiones (IfcRelConnectsPathElements)", "connections"),
+    ]
+    for label, key in sections:
+        w.line(f"### {label}")
+        w.line()
+        items = anatomy[key]
+        if not items:
+            w.line("_(ninguna)_")
+        else:
+            for it in items:
+                w.line(f"- {it}")
+        w.line()
+
+    # Huecos (estructura especial: dict con opening + filled_by)
+    w.line("### Huecos (IfcRelVoidsElement) y rellenos (IfcRelFillsElement)")
+    w.line()
+    if not anatomy["openings"]:
+        w.line("_(ninguno — elemento sin aperturas)_")
+    else:
+        for op in anatomy["openings"]:
+            filler = op["filled_by"] or "_(sin filler)_"
+            w.line(f"- {op['opening']} → {filler}")
+    w.line()
+
+    # Boundaries (estructura especial)
+    w.line("### Boundaries (IfcRelSpaceBoundary, inverso)")
+    w.line()
+    if not anatomy["boundaries"]:
+        w.line("_(ninguno — elemento no toca a ningún IfcSpace)_")
+    else:
+        for b in anatomy["boundaries"]:
+            w.line(
+                f"- Hacia space {b['space']} · Name={b['name']} · "
+                f"Description={b['description']} · {b['internal']} · {b['physical']}"
+            )
+    w.line()
+
+
 # =============================================================================
 # 11. ENTRY POINT
 # =============================================================================
@@ -591,12 +924,28 @@ def main(argv: list[str]) -> int:
 
     _render_invariants(w, model)
 
+    # Auditoría Pset NEXUM (v0.3)
+    audit = check_minimum_psets(model)
+    _render_pset_audit(w, audit)
+
+    # Anatomía de la entidad de referencia (v0.3)
+    # Por defecto: muro #15042 (GlobalId 2XPyKWY018sA1ygZKgQPtU)
+    # Se puede sobrescribir con segundo argumento CLI.
+    default_guid = "2XPyKWY018sA1ygZKgQPtU"
+    guid = argv[2] if len(argv) > 2 else default_guid
+    try:
+        anatomy = explain_entity(model, guid)
+        _render_entity_anatomy(w, anatomy)
+    except ValueError as e:
+        w.heading(f"Anatomía de entidad '{guid}'", level=2)
+        w.code(f"ERROR: {e}")
+        w.line()
+
     w.heading("Funciones pendientes para S4·L", level=2)
     w.line()
     pending = [
         "list_elements_per_storey",
         "count_relationships",
-        "explain_entity",
         "validate_doors_have_openings",
         "validate_unique_project",
     ]
