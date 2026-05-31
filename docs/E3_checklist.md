@@ -38,11 +38,11 @@
 
 ## Evidencia versionada
 
-- [ ] El informe `out/S3X_lab_run_<timestamp>.md` más reciente se renombra a
+- [x] El informe `out/S3X_lab_run_<timestamp>.md` más reciente se renombra a
       `out/E3_lab_run.md`
-- [ ] El renombrado se commitea (forzar con `git add -f out/E3_lab_run.md` porque
+- [x] El renombrado se commitea (forzar con `git add -f out/E3_lab_run.md` porque
       `out/*.md` está en `.gitignore` salvo `.gitkeep` y este fichero)
-- [ ] `docs/E3_cierre.md` está relleno (no es plantilla)
+- [x] `docs/E3_cierre.md` está relleno (no es plantilla)
 
 ## Comprobaciones de calidad del texto
 
@@ -64,10 +64,10 @@
 
 ## Verificación post-cierre
 
-- [ ] Visitar https://github.com/JMSoriaMoyano/openbim-12w y comprobar que el
+- [X] Visitar https://github.com/JMSoriaMoyano/openbim-12w y comprobar que el
       tag `e3-closed` está presente
-- [ ] El README puede mostrar el tag en su sección de hitos (opcional)
-- [ ] El cron `6ffa9c6f` del lunes 01/06 07:00 CEST verá el repo en estado
+- [x] El README puede mostrar el tag en su sección de hitos (opcional)
+- [x] El cron `6ffa9c6f` del lunes 01/06 07:00 CEST verá el repo en estado
       `e3-closed` (semana 4 arranca con S4·L)
 
 ---

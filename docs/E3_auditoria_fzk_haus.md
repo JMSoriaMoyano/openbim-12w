@@ -278,6 +278,8 @@ IfcProject       #66 'Projekt-FZK-Haus'
 
   Resultado neto del muro contra baseline NEXUM Pset: **2 no conformidades mayores + 1 observación menor**. El muro `#15042` ejemplifica de forma compacta el patrón sistémico detectado por la auditoría Pset global de la Sección 6 (0/40 conformidad en el modelo completo). No es un caso aislado: es un caso representativo.
 
+  Los criterios auditados están documentados en [`docs/E3_baseline_criterios.md`](./E3_baseline_criterios.md) (Baseline NEXUM v0.3).
+
   ### Bloque E · Veredicto del muro
 
   **Dictamen del muro `#15042`: RECHAZADO para entrega NEXUM.** El elemento es geométricamente coherente, espacialmente bien tejido y funcionalmente identificable, pero no satisface el baseline Pset OpenBIM exigido para activos Living/PBSA.
