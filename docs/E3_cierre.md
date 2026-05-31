@@ -11,7 +11,7 @@
 - **Sesiones cubiertas:** S3·L (25/05) + S3·X (recuperación 28-29/05) + S3·S (30/05)
 - **Fecha de cierre:** 30/05/2026
 - **Tag git:** `e3-closed`
-- **Commit de cierre:** _(rellenar con SHA tras push)_
+- **Commit de cierre:** `75457fa`
 
 ## Qué se ha entregado
 
@@ -99,9 +99,12 @@
 
 <!-- TODO: rellenar con `git log --oneline e2-closed..e3-closed` -->
 
-```
-<insertar salida del git log aquí>
-```
+75457fa E3 cierre: auditoria FZK-Haus completada · script v0.3 + lab_run + cierre + checklist
+2297fc2 S3X Bloque C: inspector v0.3 (check_minimum_psets + explain_entity) + plantillas E3 (auditoria FZK-Haus + checklist binario + cierre) listas para sabado 30/05
+a3f35b1 S3X Bloque B: 4 dudas tecnicas resueltas (D3-01 IfcWall vs StandardCase · D3B-02 SpaceBoundary 1st/2nd · D3-02 IFC4 vs IFC4.3 · D3B-01 Psets minimos NEXUM) con evidencia FZK-Haus verificada
+5acc7f4 S3X: inspector IFC v0.2 operativo (open_ifc + report_header + walk_spatial_pyramid + count_physical_elements) · requirements.txt consolidado · out/ con .gitkeep · .gitignore actualizado para venv y out/*.md
+2446ba0 S3L: docs IFC (jerarquia + relaciones + glosario) + script inspect Nivel 2
+b84c941 S3L: infra models/samples (Opcion B) + .gitignore para _local + SOURCES.md (AC20-FZK-Haus IFC4)
 
 ## Métricas
 
@@ -115,7 +118,7 @@
 | Líneas de documentación | ~1500 |
 | Dudas resueltas | 4 |
 | Dudas diferidas | 5 |
-| Commits | _(rellenar)_ |
+| Commits | 6 |
 | Tag de cierre | `e3-closed` |
 
 ## Próximo: semana 4
