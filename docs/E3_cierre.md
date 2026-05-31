@@ -49,23 +49,23 @@
 
 ## Qué se ha aprendido
 
-<!-- TODO: rellena con 3-5 conclusiones técnicas y 1-2 conclusiones de proceso.
+### Conclusiones técnicas
 
-  Sugerencias técnicas:
-  - El schema IFC4 distingue jerarquía espacial (Project→Site→Building→Storey→Space)
-    de jerarquía elementar (BuildingElement →…). Son ortogonales.
-  - Los Psets del fabricante son ruido; solo los Pset_*Common del estándar son
-    transferibles entre herramientas.
-  - Las boundaries 2nd level en IFC4 vienen en dos sabores: subtipo formal
-    (IfcRelSpaceBoundary2ndLevel) o convención por Name/Description (clase base
-    con metadatos). La validación robusta usa ambos.
-  - IfcOpenShell 0.8.x permite todo el análisis sin tocar Blender.
+- **Las dos jerarquías ortogonales del IFC** (espacial: `IfcProject → IfcSite → IfcBuilding → IfcBuildingStorey → IfcSpace`; elementar: `IfcRoot → IfcObjectDefinition → IfcProduct → IfcElement → IfcBuildingElement → ...`) son el armazón sobre el que se monta cualquier lectura de modelo. Sin esa estructura mental, los conteos por clase no significan nada; con ella, cualquier conteo se traduce en una pregunta operativa concreta (¿cuántas particiones tiene cada planta?, ¿qué elementos faltan en este storey?).
 
-  Sugerencias de proceso:
-  - Sesiones en diferido (S3·X recuperada en jueves+viernes) funcionan bien
-    cuando hay buen registro en el repo.
-  - El cron automático del briefing matinal es útil para no perder el hilo.
--->
+- **El binomio `Pset_*Common` + `Qto_*BaseQuantities`** es el contrato OpenBIM mínimo entre herramientas; los Psets vendor-specific (`ArchiCAD*`, `AC_*`, `Revit*`) son ruido informacional no transferible. Auditar contra el binomio mínimo es eficiente; auditar contra el vendor es ilusión de rigor.
+
+- **La validación dual de boundaries de 2º nivel** (subtipo formal `IfcRelSpaceBoundary2ndLevel` OR clase base con `Name='2ndLevel'` + `Description='2a'`) es necesaria para que el baseline NEXUM sea inclusivo con el parque ArchiCAD ≤20 sin perder rigor (D3B-02). Esta dualidad es trasladable a otros pares OpenBIM/vendor: identificar la equivalencia semántica detrás del literal es trabajo de auditor maduro.
+
+- **IfcOpenShell 0.8.5 sobre Python 3.14** soporta la totalidad del análisis informacional sin necesidad de tocar Blender ni Bonsai. La extensión visual queda como herramienta complementaria, no como dependencia. Esto es importante porque permite CI/CD headless de auditoría sobre cualquier modelo, sin entorno gráfico.
+
+- **El exportador determina la salida tanto o más que el modelador**. El hallazgo sistémico de S6 (0/40 conformidad Pset en FZK-Haus por uso del add-on IFC2x3 de ArchiCAD 20) reformula la auditoría: ya no basta con preguntar "¿quién modeló esto?", hay que preguntar también "¿con qué herramienta y qué versión de exportador se serializó?". El tooling es información contractual.
+
+### Conclusiones de proceso
+
+- **Las sesiones recuperadas en diferido funcionan** cuando el repo lleva trazabilidad clara. S3·X se recuperó jueves+viernes (28-29/05) sobre tres bloques bien delimitados (A inspector, B dudas, C plantillas E3); el cierre el sábado/domingo no acusó la deuda. El patrón se valida para futuras recuperaciones.
+
+- **El cron de briefing matinal L/X/S 07:00 CEST** es soporte cognitivo eficaz para no perder el hilo entre sesiones espaciadas. Especialmente útil tras semanas con sesiones en diferido o festivos intercalados. Mantener el cron activo hasta cierre del plan (sábado 01/08).
 
 ## Qué queda abierto (deuda técnica)
 

@@ -6,35 +6,35 @@
 
 ## Pre-requisitos (antes de empezar a escribir)
 
-- [ ] El venv está activo (prompt muestra `(.venv)`)
-- [ ] `pip list | grep ifcopenshell` muestra `ifcopenshell 0.8.5`
-- [ ] `models/samples/_local/AC20-FZK-Haus.ifc` existe en disco local
-- [ ] `git status` reporta working tree clean (HEAD sincronizado con remote)
-- [ ] `git log --oneline -5` muestra al menos los commits S3L + S3X-A + S3X-B + S3X-C
+- [x] El venv está activo (prompt muestra `(.venv)`)
+- [x] `pip list | grep ifcopenshell` muestra `ifcopenshell 0.8.5`
+- [x] `models/samples/_local/AC20-FZK-Haus.ifc` existe en disco local
+- [x] `git status` reporta working tree clean (HEAD sincronizado con remote)
+- [x] `git log --oneline -5` muestra al menos los commits S3L + S3X-A + S3X-B + S3X-C
 
 ## Ejecución del script
 
-- [ ] `python scripts/s3l_ifc_inspect.py` se ejecuta sin errores
-- [ ] Consola muestra `[OK] Informe guardado en: out/S3X_lab_run_<timestamp>.md`
-- [ ] El informe generado tiene 8 secciones (HEADER, Pirámide, Conteo, Validación,
-      Auditoría Pset, Anatomía muro, Pendientes)
-- [ ] La sección "Validación cruzada" reporta **22 OK · 0 FAIL · 22 total**
-- [ ] La sección "Auditoría Pset NEXUM" reporta **0 OK · 40 no conformes · 0%**
+- [x] `python scripts/s3l_ifc_inspect.py` se ejecuta sin errores
+- [x] Consola muestra `[OK] Informe guardado en: out/S3X_lab_run_<timestamp>.md`
+- [x] El informe generado tiene 8 secciones (HEADER, Pirámide, Conteo, Validación,
+- [x] Auditoría Pset, Anatomía muro, Pendientes)
+- [x] La sección "Validación cruzada" reporta **22 OK · 0 FAIL · 22 total**
+- [x] La sección "Auditoría Pset NEXUM" reporta **0 OK · 40 no conformes · 0%**
 
 ## Entregable principal
 
-- [ ] `docs/E3_auditoria_fzk_haus.md` existe en el repo
-- [ ] Sección 1 (Datos del modelo) completa: 9 campos rellenos con valores reales
-- [ ] Sección 2 (Estructura espacial) tiene tu análisis crítico (no solo la tabla)
-- [ ] Sección 3 (Inventario físico) explica el "+1" entre IfcOpeningElement (17)
+- [x] `docs/E3_auditoria_fzk_haus.md` existe en el repo
+- [x] Sección 1 (Datos del modelo) completa: 9 campos rellenos con valores reales
+- [x] Sección 2 (Estructura espacial) tiene tu análisis crítico (no solo la tabla)
+- [x] Sección 3 (Inventario físico) explica el "+1" entre IfcOpeningElement (17)
       y los rellenos (16) o referencia explain_entity para localizarlo
-- [ ] Sección 4 (Inventario relacional) calcula el ratio boundaries/IfcSpace
+- [x] Sección 4 (Inventario relacional) calcula el ratio boundaries/IfcSpace
       (81 / 7 = ~11.6)
-- [ ] Sección 5 (Caso muro #15042) tiene análisis razonado del cumplimiento
+- [x] Sección 5 (Caso muro #15042) tiene análisis razonado del cumplimiento
       de las 3 restricciones de IfcWallStandardCase
-- [ ] Sección 6 (Auditoría Pset) tiene tu interpretación NEXUM (no solo cifras)
-- [ ] Sección 7 (Conformidad final) tiene veredicto razonado SÍ/NO/CONDICIONADO
-- [ ] Sección 8 (Lecciones Can Cabassa) tiene 3-5 puntos extrapolables
+- [x] Sección 6 (Auditoría Pset) tiene tu interpretación NEXUM (no solo cifras)
+- [x] Sección 7 (Conformidad final) tiene veredicto razonado SÍ/NO/CONDICIONADO
+- [x] Sección 8 (Lecciones Can Cabassa) tiene 3-5 puntos extrapolables
 
 ## Evidencia versionada
 
@@ -46,12 +46,12 @@
 
 ## Comprobaciones de calidad del texto
 
-- [ ] Cada afirmación numérica está respaldada por una cifra del informe
-- [ ] No hay "TODO" pendientes en `docs/E3_auditoria_fzk_haus.md`
-- [ ] No hay placeholders `(rellenar)` ni `<!-- ... -->` en el texto final
-- [ ] Todas las referencias cruzadas a otras dudas (D3-01, D3-02, D3B-01,
+- [x] Cada afirmación numérica está respaldada por una cifra del informe
+- [x] No hay "TODO" pendientes en `docs/E3_auditoria_fzk_haus.md`
+- [x] No hay placeholders `(rellenar)` ni `<!-- ... -->` en el texto final
+- [x] Todas las referencias cruzadas a otras dudas (D3-01, D3-02, D3B-01,
       D3B-02) son consistentes con `docs/S3X_dudas_resueltas.md`
-- [ ] Las URLs externas (buildingSMART, etc.) abren correctamente
+- [x] Las URLs externas (buildingSMART, etc.) abren correctamente
 
 ## Commit final
 
