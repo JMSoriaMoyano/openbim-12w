@@ -21,12 +21,13 @@ Uso CLI:
     python scripts/s4l_ifc_query.py --ifc <ruta.ifc> --query psets  --guid <GUID>
 
 Autor: José M. Soria (NEXUM)
-Versión: 0.2 (Bloque B · count_by_type 3 niveles)
+Versión: 0.3 (Bloque C · find_by_guid L3 estructurado)
 """
 
 from __future__ import annotations
 
 import argparse
+import datetime as _dt
 import json
 import sys
 from pathlib import Path
@@ -126,19 +127,181 @@ def count_by_type(
 
 
 # ---------------------------------------------------------------------------
-# Q2 · Buscar por GUID  (a implementar en Bloque C)
+# Q2 · Buscar por GUID (L3 · estructurado completo)
 # ---------------------------------------------------------------------------
 
-def find_by_guid(model: ifcopenshell.file, guid: str) -> dict[str, Any] | None:
-    """Localiza una entidad por su GlobalId y devuelve resumen identificativo.
+def _format_creation_date(value: Any) -> str | None:
+    """Convierte timestamp IFC (int Unix o str ISO) a ISO 8601 legible.
 
-    Devuelve None si no existe.
-
-    TODO Bloque C:
-        - Usar model.by_guid(guid) con manejo de RuntimeError si no existe.
-        - Devolver: id, guid, is_a, name, description, predefined_type si aplica.
+    IFC2x3 usa int (segundos desde epoch). IFC4 puede usar IfcDateTime (str ISO).
+    Devuelve None si el valor es None o no parseable.
     """
-    raise NotImplementedError("Bloque C: pendiente de implementar")
+    if value is None:
+        return None
+    if isinstance(value, int):
+        try:
+            return _dt.datetime.fromtimestamp(value).isoformat(timespec="seconds")
+        except (OSError, OverflowError, ValueError):
+            return None
+    if isinstance(value, str):
+        return value  # asumimos que ya viene formateado
+    return str(value)
+
+
+def _entity_ref(entity: Any) -> dict[str, Any] | None:
+    """Devuelve {id, is_a, name, guid} de una entidad, o None si entity es None."""
+    if entity is None:
+        return None
+    return {
+        "id": entity.id(),
+        "is_a": entity.is_a(),
+        "name": getattr(entity, "Name", None),
+        "guid": getattr(entity, "GlobalId", None),
+    }
+
+
+def _get_spatial_container(entity: Any) -> Any:
+    """Devuelve el contenedor espacial directo (BuildingStorey, Space…) o None.
+
+    Usa IfcRelContainedInSpatialStructure inverso. Solo aplica a IfcElement.
+    """
+    rels = getattr(entity, "ContainedInStructure", None) or []
+    if not rels:
+        return None
+    return rels[0].RelatingStructure
+
+
+def _get_type_object(entity: Any) -> Any:
+    """Devuelve el IfcTypeObject asociado (vía IsTypedBy / IsDefinedBy) o None.
+
+    IFC4 usa IsTypedBy (IfcRelDefinesByType); IFC2x3 usaba IsDefinedBy con
+    RelatingType. Probamos ambos para robustez.
+    """
+    typed_by = getattr(entity, "IsTypedBy", None) or []
+    if typed_by:
+        return typed_by[0].RelatingType
+    # Fallback IFC2x3
+    for rel in getattr(entity, "IsDefinedBy", None) or []:
+        if rel.is_a("IfcRelDefinesByType"):
+            return rel.RelatingType
+    return None
+
+
+def _count_relationships(entity: Any) -> dict[str, int | bool]:
+    """Cuenta relaciones inversas relevantes. No las lista, solo las cuenta."""
+    def _len(attr: str) -> int:
+        return len(getattr(entity, attr, None) or [])
+
+    return {
+        "is_decomposed_by_count": _len("IsDecomposedBy"),
+        "decomposes_count": _len("Decomposes"),
+        "is_defined_by_count": _len("IsDefinedBy"),
+        "is_typed_by": bool(getattr(entity, "IsTypedBy", None)),
+        "has_openings_count": _len("HasOpenings"),
+        "fills_voids_count": _len("FillsVoids"),
+        "connected_to_count": _len("ConnectedTo"),
+        "connected_from_count": _len("ConnectedFrom"),
+        "boundary_count": _len("ProvidesBoundaries"),
+        "referenced_by_count": _len("ReferencedBy"),
+    }
+
+
+def _summarize_psets(entity: Any) -> dict[str, Any]:
+    """Devuelve resumen agregado de Psets/Qto/Vendor (nombres y counts, no valores).
+
+    Los valores serán cubiertos por Q3 (read_psets) en Bloque D.
+    """
+    pset_count = 0
+    qto_count = 0
+    vendor_count = 0
+    names: list[str] = []
+
+    for rel in getattr(entity, "IsDefinedBy", None) or []:
+        if not rel.is_a("IfcRelDefinesByProperties"):
+            continue
+        pdef = rel.RelatingPropertyDefinition
+        name = getattr(pdef, "Name", None) or "<sin nombre>"
+        names.append(name)
+        if pdef.is_a("IfcElementQuantity"):
+            qto_count += 1
+        elif pdef.is_a("IfcPropertySet"):
+            if name.startswith("Pset_"):
+                pset_count += 1
+            else:
+                vendor_count += 1
+
+    return {
+        "pset_count": pset_count,
+        "qto_count": qto_count,
+        "vendor_pset_count": vendor_count,
+        "pset_names": names,
+    }
+
+
+def find_by_guid(model: ifcopenshell.file, guid: str) -> dict[str, Any] | None:
+    """Localiza una entidad por GlobalId y devuelve resumen estructurado L3.
+
+    Devuelve None si el GUID no existe en el modelo.
+
+    Estructura de salida (6 secciones):
+        identity         : id, guid, is_a, name, description, object_type, predefined_type
+        authoring        : owning_user, owning_application, creation_date, last_modified_date
+        spatial_container: ref al contenedor espacial directo (BuildingStorey/Space…)
+        type_object      : ref al IfcTypeObject asociado
+        relationships    : counts de relaciones inversas relevantes
+        psets_summary    : counts y nombres de Psets/Qto/Vendor (valores en Q3)
+
+    Notas
+    -----
+    - L3 es complementario a explain_entity() de S3·L: aquel es narrativo,
+      este es estructurado JSON-serializable para consumo programático.
+    - Los valores reales de los Psets se obtienen con Q3 (read_psets).
+    """
+    try:
+        entity = model.by_guid(guid)
+    except RuntimeError:
+        return None
+
+    # Identidad
+    identity = {
+        "id": entity.id(),
+        "guid": guid,
+        "is_a": entity.is_a(),
+        "name": getattr(entity, "Name", None),
+        "description": getattr(entity, "Description", None),
+        "object_type": getattr(entity, "ObjectType", None),
+        "predefined_type": getattr(entity, "PredefinedType", None),
+    }
+
+    # Autoría (OwnerHistory)
+    oh = getattr(entity, "OwnerHistory", None)
+    if oh is None:
+        authoring = None
+    else:
+        owning_user = getattr(oh, "OwningUser", None)
+        owning_app = getattr(oh, "OwningApplication", None)
+        user_name = None
+        app_name = None
+        if owning_user is not None:
+            person = getattr(owning_user, "ThePerson", None)
+            user_name = getattr(person, "FamilyName", None) or getattr(person, "Identification", None)
+        if owning_app is not None:
+            app_name = getattr(owning_app, "ApplicationFullName", None) or getattr(owning_app, "ApplicationIdentifier", None)
+        authoring = {
+            "owning_user": user_name,
+            "owning_application": app_name,
+            "creation_date": _format_creation_date(getattr(oh, "CreationDate", None)),
+            "last_modified_date": _format_creation_date(getattr(oh, "LastModifiedDate", None)),
+        }
+
+    return {
+        "identity": identity,
+        "authoring": authoring,
+        "spatial_container": _entity_ref(_get_spatial_container(entity)),
+        "type_object": _entity_ref(_get_type_object(entity)),
+        "relationships": _count_relationships(entity),
+        "psets_summary": _summarize_psets(entity),
+    }
 
 
 # ---------------------------------------------------------------------------
