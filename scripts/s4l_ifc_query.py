@@ -15,12 +15,13 @@ Diseño:
     - Reutiliza el patrón de s3l_ifc_inspect.py (open_ifc + report_header).
 
 Uso CLI:
-    python scripts/s4l_ifc_query.py --ifc <ruta.ifc> --query counts
-    python scripts/s4l_ifc_query.py --ifc <ruta.ifc> --query guid --guid <GUID>
-    python scripts/s4l_ifc_query.py --ifc <ruta.ifc> --query psets --guid <GUID>
+    python scripts/s4l_ifc_query.py --ifc <ruta.ifc> --query header
+    python scripts/s4l_ifc_query.py --ifc <ruta.ifc> --query counts [--level bruto|root|product] [--top N]
+    python scripts/s4l_ifc_query.py --ifc <ruta.ifc> --query guid   --guid <GUID>
+    python scripts/s4l_ifc_query.py --ifc <ruta.ifc> --query psets  --guid <GUID>
 
 Autor: José M. Soria (NEXUM)
-Versión: 0.1 (esqueleto · Bloque A)
+Versión: 0.2 (Bloque B · count_by_type 3 niveles)
 """
 
 from __future__ import annotations
@@ -66,16 +67,62 @@ def report_header(model: ifcopenshell.file, path: str | Path) -> dict[str, Any]:
 # Q1 · Conteo por tipo  (a implementar en Bloque B)
 # ---------------------------------------------------------------------------
 
-def count_by_type(model: ifcopenshell.file) -> dict[str, int]:
-    """Devuelve un diccionario {clase_IFC: nº de instancias}, ordenado descendente.
+# Niveles válidos para count_by_type. Cada uno responde una pregunta distinta:
+#   - bruto   : todas las entidades STEP del fichero (incluye geometría primitiva).
+#   - root    : solo entidades con GlobalId (heredan de IfcRoot). Inventario semántico.
+#   - product : solo elementos físicos colocables en el espacio (heredan de IfcProduct).
+COUNT_LEVELS = ("bruto", "root", "product")
 
-    TODO Bloque B:
-        - Iterar sobre model.by_type("IfcRoot") o equivalente.
-        - Contar por entity.is_a().
-        - Ordenar por valor descendente.
-        - Considerar si filtrar tipos no físicos (IfcOwnerHistory, IfcCartesianPoint…).
+
+def count_by_type(
+    model: ifcopenshell.file,
+    level: str = "root",
+) -> dict[str, int]:
+    """Devuelve {clase_IFC: nº instancias}, ordenado descendente por valor.
+
+    Parámetros
+    ----------
+    model : ifcopenshell.file
+        Modelo IFC ya cargado con load_ifc().
+    level : {'bruto', 'root', 'product'}, default 'root'
+        Nivel de filtrado:
+          - 'bruto'   : iter(model) — TODAS las entidades STEP (geometría incluida).
+          - 'root'    : model.by_type('IfcRoot') — solo entidades con GlobalId.
+          - 'product' : model.by_type('IfcProduct') — solo elementos físicos.
+
+    Devuelve
+    --------
+    dict[str, int]
+        Diccionario ordenado descendente por valor. Las claves son los nombres
+        de clase exactos (resultado de entity.is_a()), sin agregar subtipos.
+
+    Notas
+    -----
+    - 'root' incluye también tipos abstractos (IfcRelAggregates, IfcOwnerHistory…)
+      porque heredan de IfcRoot. Es el inventario "semántico" completo, no solo físico.
+    - 'product' es el equivalente más cercano al "inventario de obra":
+      muros, forjados, ventanas, espacios, sitios… excluyendo relaciones y propiedades.
     """
-    raise NotImplementedError("Bloque B: pendiente de implementar")
+    if level not in COUNT_LEVELS:
+        raise ValueError(
+            f"level inválido: {level!r}. Debe ser uno de {COUNT_LEVELS}"
+        )
+
+    if level == "bruto":
+        iterable = iter(model)
+    elif level == "root":
+        iterable = model.by_type("IfcRoot")
+    else:  # product
+        iterable = model.by_type("IfcProduct")
+
+    counts: dict[str, int] = {}
+    for entity in iterable:
+        cls = entity.is_a()
+        counts[cls] = counts.get(cls, 0) + 1
+
+    # Ordenar descendente por valor, alfabético como desempate estable.
+    sorted_items = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    return dict(sorted_items)
 
 
 # ---------------------------------------------------------------------------
@@ -134,6 +181,12 @@ def _parse_args() -> argparse.Namespace:
         default=20,
         help="Limitar salida de 'counts' a los N tipos más frecuentes (default 20)",
     )
+    parser.add_argument(
+        "--level",
+        choices=list(COUNT_LEVELS),
+        default="root",
+        help="Nivel de filtrado para 'counts' (default 'root')",
+    )
     return parser.parse_args()
 
 
@@ -152,9 +205,16 @@ def main() -> int:
         return 0
 
     if args.query == "counts":
-        out = count_by_type(model)
+        out = count_by_type(model, level=args.level)
         # Limitar a top N
         top_n = dict(list(out.items())[: args.top])
+        # Cabecera resumen previa al JSON para contexto
+        total_classes = len(out)
+        total_instances = sum(out.values())
+        print(
+            f"# level={args.level} · clases={total_classes} · "
+            f"instancias={total_instances} · top={min(args.top, total_classes)}"
+        )
         print(json.dumps(top_n, indent=2, ensure_ascii=False))
         return 0
 
