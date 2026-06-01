@@ -21,7 +21,7 @@ Uso CLI:
     python scripts/s4l_ifc_query.py --ifc <ruta.ifc> --query psets  --guid <GUID>
 
 Autor: José M. Soria (NEXUM)
-Versión: 0.3 (Bloque C · find_by_guid L3 estructurado)
+Versión: 0.4 (Bloque D · read_psets valores reales + type psets)
 """
 
 from __future__ import annotations
@@ -305,21 +305,175 @@ def find_by_guid(model: ifcopenshell.file, guid: str) -> dict[str, Any] | None:
 
 
 # ---------------------------------------------------------------------------
-# Q3 · Leer Psets  (a implementar en Bloque D)
+# Q3 · Leer Psets con valores reales (instancia + tipo)
 # ---------------------------------------------------------------------------
 
-def read_psets(entity: ifcopenshell.entity_instance) -> dict[str, dict[str, Any]]:
-    """Devuelve {nombre_pset: {propiedad: valor, ...}} para una entidad.
+def _unwrap_value(prop: Any) -> Any:
+    """Extrae el valor escalar/lista de cualquier IfcProperty o IfcPhysicalQuantity.
 
-    Incluye Psets, Qto y propiedades vendor-specific.
-
-    TODO Bloque D:
-        - Iterar IsDefinedBy → RelDefinesByProperties → RelatingPropertyDefinition.
-        - Aceptar IfcPropertySet, IfcElementQuantity.
-        - Extraer valores con .wrappedValue cuando aplique.
-        - Manejar propiedades nulas y tipos enumerados.
+    Maneja los tipos más comunes:
+      - IfcPropertySingleValue       → .NominalValue.wrappedValue (o None)
+      - IfcPropertyEnumeratedValue   → lista de wrappedValue
+      - IfcPropertyListValue         → lista de wrappedValue
+      - IfcPropertyBoundedValue      → dict {lower, upper, set_point}
+      - IfcPhysicalSimpleQuantity    → .LengthValue / .AreaValue / .VolumeValue / etc.
+      - IfcPropertyReferenceValue    → resumen del objeto referenciado
+      - Cualquier otro               → str(prop) como fallback seguro
     """
-    raise NotImplementedError("Bloque D: pendiente de implementar")
+    # --- IfcPropertySingleValue ---
+    if prop.is_a("IfcPropertySingleValue"):
+        nv = getattr(prop, "NominalValue", None)
+        return getattr(nv, "wrappedValue", None) if nv is not None else None
+
+    # --- IfcPropertyEnumeratedValue ---
+    if prop.is_a("IfcPropertyEnumeratedValue"):
+        values = getattr(prop, "EnumerationValues", None) or []
+        return [getattr(v, "wrappedValue", None) for v in values]
+
+    # --- IfcPropertyListValue ---
+    if prop.is_a("IfcPropertyListValue"):
+        values = getattr(prop, "ListValues", None) or []
+        return [getattr(v, "wrappedValue", None) for v in values]
+
+    # --- IfcPropertyBoundedValue ---
+    if prop.is_a("IfcPropertyBoundedValue"):
+        return {
+            "lower": getattr(getattr(prop, "LowerBoundValue", None), "wrappedValue", None),
+            "upper": getattr(getattr(prop, "UpperBoundValue", None), "wrappedValue", None),
+            "set_point": getattr(getattr(prop, "SetPointValue", None), "wrappedValue", None),
+        }
+
+    # --- IfcPropertyReferenceValue ---
+    if prop.is_a("IfcPropertyReferenceValue"):
+        ref = getattr(prop, "PropertyReference", None)
+        if ref is None:
+            return None
+        return {
+            "is_a": ref.is_a(),
+            "name": getattr(ref, "Name", None),
+        }
+
+    # --- IfcPhysicalSimpleQuantity (Length/Area/Volume/Count/Weight/Time) ---
+    if prop.is_a("IfcPhysicalSimpleQuantity"):
+        for attr in ("LengthValue", "AreaValue", "VolumeValue",
+                     "CountValue", "WeightValue", "TimeValue"):
+            val = getattr(prop, attr, None)
+            if val is not None:
+                return val
+        return None
+
+    # --- Fallback ---
+    return str(prop)
+
+
+def _read_property_set(pset: Any) -> dict[str, Any]:
+    """Devuelve {nombre_propiedad: valor} para un IfcPropertySet o IfcElementQuantity.
+
+    - IfcPropertySet usa atributo .HasProperties
+    - IfcElementQuantity usa atributo .Quantities
+    """
+    result: dict[str, Any] = {}
+
+    if pset.is_a("IfcPropertySet"):
+        items = getattr(pset, "HasProperties", None) or []
+    elif pset.is_a("IfcElementQuantity"):
+        items = getattr(pset, "Quantities", None) or []
+    else:
+        return result
+
+    for item in items:
+        name = getattr(item, "Name", None) or "<sin nombre>"
+        result[name] = _unwrap_value(item)
+
+    return result
+
+
+def _split_instance_psets(entity: Any) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
+    """Separa los PropertyDefinitions de la INSTANCIA en (psets, quantities).
+
+    Devuelve (instance_psets, instance_quantities), cada uno {nombre: {prop: valor}}.
+    """
+    psets: dict[str, dict[str, Any]] = {}
+    quantities: dict[str, dict[str, Any]] = {}
+
+    for rel in getattr(entity, "IsDefinedBy", None) or []:
+        if not rel.is_a("IfcRelDefinesByProperties"):
+            continue
+        pdef = rel.RelatingPropertyDefinition
+        name = getattr(pdef, "Name", None) or "<sin nombre>"
+        if pdef.is_a("IfcElementQuantity"):
+            quantities[name] = _read_property_set(pdef)
+        elif pdef.is_a("IfcPropertySet"):
+            psets[name] = _read_property_set(pdef)
+        # otras IfcPropertyDefinition (rarezas) se ignoran
+
+    return psets, quantities
+
+
+def _get_type_psets(entity: Any) -> dict[str, dict[str, Any]]:
+    """Devuelve {nombre_pset: {prop: valor}} de los PropertySets HEREDADOS del IfcTypeObject.
+
+    Si la entidad no tiene tipo asociado, devuelve dict vacío.
+    Solo recoge IfcPropertySet (los IfcElementQuantity raramente cuelgan del type).
+    """
+    type_obj = _get_type_object(entity)
+    if type_obj is None:
+        return {}
+
+    result: dict[str, dict[str, Any]] = {}
+    for pset in getattr(type_obj, "HasPropertySets", None) or []:
+        if not pset.is_a("IfcPropertySet"):
+            continue
+        name = getattr(pset, "Name", None) or "<sin nombre>"
+        result[name] = _read_property_set(pset)
+
+    return result
+
+
+def read_psets(entity: ifcopenshell.entity_instance) -> dict[str, Any]:
+    """Devuelve la radiografía completa de propiedades de una entidad.
+
+    Estructura de salida (5 secciones):
+        entity              : id, guid, is_a, name (identificación mínima)
+        instance_psets      : {nombre_pset: {propiedad: valor}} — IfcPropertySet directos
+        instance_quantities : {nombre_qto: {propiedad: valor}} — IfcElementQuantity directos
+        type_psets          : {nombre_pset: {propiedad: valor}} — heredados del IfcTypeObject
+        summary             : counts agregados
+
+    Diseño
+    ------
+    - Incluye valores None explícitamente (auditoría LOIN: declarada pero vacía ≠ ausente).
+    - No deduplica entre instance y type (puede haber overrides; el auditor decide).
+    - Maneja los 5 tipos de IfcProperty + IfcPhysicalSimpleQuantity vía _unwrap_value().
+    - Valores en unidades declaradas en IfcUnitAssignment del proyecto (no normaliza).
+    """
+    instance_psets, instance_quantities = _split_instance_psets(entity)
+    type_psets = _get_type_psets(entity)
+
+    # Conteo total de propiedades individuales (suma de claves de cada subdict)
+    total_props = (
+        sum(len(v) for v in instance_psets.values())
+        + sum(len(v) for v in instance_quantities.values())
+        + sum(len(v) for v in type_psets.values())
+    )
+
+    return {
+        "entity": {
+            "id": entity.id(),
+            "guid": getattr(entity, "GlobalId", None),
+            "is_a": entity.is_a(),
+            "name": getattr(entity, "Name", None),
+        },
+        "instance_psets": instance_psets,
+        "instance_quantities": instance_quantities,
+        "type_psets": type_psets,
+        "summary": {
+            "instance_psets_count": len(instance_psets),
+            "instance_quantities_count": len(instance_quantities),
+            "type_psets_count": len(type_psets),
+            "total_properties": total_props,
+        },
+    }
 
 
 # ---------------------------------------------------------------------------
