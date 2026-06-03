@@ -21,7 +21,17 @@ Uso CLI:
     python scripts/s4l_ifc_query.py --ifc <ruta.ifc> --query psets  --guid <GUID>
 
 Autor: José M. Soria (NEXUM)
-Versión: 0.4 (Bloque D · read_psets valores reales + type psets)
+Versión: 0.5 (S4·X Bloque A · refactor: helpers comunes + MODELS_DIR)
+
+Changelog
+---------
+0.5 (S4·X · 03/06): Extracción de load_ifc, report_header y _get_type_object
+     a scripts/_ifc_helpers.py. Sin cambios funcionales. MODELS_DIR resuelve
+     rutas relativas automáticamente desde CLI.
+0.4 (S4·L Bloque D · 01/06): read_psets con valores reales + type psets.
+0.3 (S4·L Bloque C · 01/06): find_by_guid L3 estructurado en 6 secciones.
+0.2 (S4·L Bloque B · 01/06): count_by_type con 3 niveles bruto/root/product.
+0.1 (S4·L Bloque A · 01/06): Esqueleto + report_header.
 """
 
 from __future__ import annotations
@@ -30,38 +40,16 @@ import argparse
 import datetime as _dt
 import json
 import sys
-from pathlib import Path
 from typing import Any
 
 import ifcopenshell
 
-# ---------------------------------------------------------------------------
-# Utilidades comunes (reutilizadas de s3l_ifc_inspect.py)
-# ---------------------------------------------------------------------------
-
-def load_ifc(path: str | Path) -> ifcopenshell.file:
-    """Carga un IFC desde disco con validación mínima."""
-    p = Path(path)
-    if not p.exists():
-        raise FileNotFoundError(f"IFC no encontrado: {p}")
-    if not p.suffix.lower() == ".ifc":
-        raise ValueError(f"Extensión inesperada (esperado .ifc): {p.suffix}")
-    model = ifcopenshell.open(str(p))
-    return model
-
-
-def report_header(model: ifcopenshell.file, path: str | Path) -> dict[str, Any]:
-    """Cabecera mínima: schema, MVD, archivo, totales."""
-    schema = model.schema
-    header = model.header
-    return {
-        "file": str(path),
-        "schema": schema,
-        "mvd": header.file_description.description[0] if header.file_description.description else None,
-        "originating_system": header.file_name.originating_system,
-        "timestamp": header.file_name.time_stamp,
-        "total_entities": len(list(model)),
-    }
+from _ifc_helpers import (
+    load_ifc,
+    report_header,
+    resolve_model_path,
+    get_type_object as _get_type_object,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -169,22 +157,6 @@ def _get_spatial_container(entity: Any) -> Any:
     if not rels:
         return None
     return rels[0].RelatingStructure
-
-
-def _get_type_object(entity: Any) -> Any:
-    """Devuelve el IfcTypeObject asociado (vía IsTypedBy / IsDefinedBy) o None.
-
-    IFC4 usa IsTypedBy (IfcRelDefinesByType); IFC2x3 usaba IsDefinedBy con
-    RelatingType. Probamos ambos para robustez.
-    """
-    typed_by = getattr(entity, "IsTypedBy", None) or []
-    if typed_by:
-        return typed_by[0].RelatingType
-    # Fallback IFC2x3
-    for rel in getattr(entity, "IsDefinedBy", None) or []:
-        if rel.is_a("IfcRelDefinesByType"):
-            return rel.RelatingType
-    return None
 
 
 def _count_relationships(entity: Any) -> dict[str, int | bool]:
@@ -510,14 +482,18 @@ def _parse_args() -> argparse.Namespace:
 def main() -> int:
     args = _parse_args()
 
+    # Resolución de ruta: si el usuario pasa solo el nombre del fichero,
+    # se busca automáticamente en models/samples/_local/.
+    ifc_path = resolve_model_path(args.ifc)
+
     try:
-        model = load_ifc(args.ifc)
+        model = load_ifc(ifc_path)
     except (FileNotFoundError, ValueError) as exc:
         print(f"[ERROR] {exc}", file=sys.stderr)
         return 1
 
     if args.query == "header":
-        out = report_header(model, args.ifc)
+        out = report_header(model, ifc_path)
         print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
         return 0
 

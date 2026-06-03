@@ -26,25 +26,15 @@ reports/*.pdf
 reports/*.json
 !reports/.gitkeep
 
+# Outputs de consultas IFC (ad-hoc, regenerables)
+# Excepción: ficheros *_baseline.json son evidencias versionadas (auditoría LOIN E4+)
+out/*.json
+!out/*_baseline.json
+!out/.gitkeep
+
 # IFC pesados (>50 MB) — opcional, descomenta si aplica
 # models/*.ifc
-
-
-
 
 # Blender
 *.blend1
 *.blend2
-
-# IFC samples descargados localmente (no versionar)
-# Manifest oficial está en models/samples/SOURCES.md
-models/samples/_local/
-
-# Python virtual environment
-.venv/
-__pycache__/
-*.pyc
-
-# Informes de ejecución (artefactos efímeros)
-out/*.md
-!out/.gitkeep
