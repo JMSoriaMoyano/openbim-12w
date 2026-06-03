@@ -1,0 +1,110 @@
+{
+  "query": {
+    "type": "missing",
+    "ifc_type": "IfcWallStandardCase",
+    "pset_name": "Pset_WallCommon",
+    "prop_name": "FireRating"
+  },
+  "total": 13,
+  "compliance": {
+    "present": 0,
+    "absent_pset": 0,
+    "absent_prop": 13,
+    "present_none": 0
+  },
+  "compliance_pct": 0.0,
+  "offenders": [
+    {
+      "id": 15042,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Int-ERDG-4",
+      "guid": "2XPyKWY018sA1ygZKgQPtU",
+      "status": "absent_prop"
+    },
+    {
+      "id": 17040,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Int-ERDG-2",
+      "guid": "3PfS__Y_DBAfq5naM6zD2Z",
+      "status": "absent_prop"
+    },
+    {
+      "id": 18465,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Int-ERDG-1",
+      "guid": "2ptk1k7qn8_Qk22vjh$0DE",
+      "status": "absent_prop"
+    },
+    {
+      "id": 18698,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Int-ERDG-3",
+      "guid": "3jjW3rL656ex34Gws22EfM",
+      "status": "absent_prop"
+    },
+    {
+      "id": 20598,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Int-ERDG-5",
+      "guid": "1$wmdwWPjDYuku_ghVkynE",
+      "status": "absent_prop"
+    },
+    {
+      "id": 21966,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Ext-ERDG-1",
+      "guid": "3rPX_Juz59peXXY6wDJl18",
+      "status": "absent_prop"
+    },
+    {
+      "id": 27421,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Ext-ERDG-4",
+      "guid": "16DNNqzfP2thtfaOflvsKA",
+      "status": "absent_prop"
+    },
+    {
+      "id": 31470,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Ext-ERDG-3",
+      "guid": "25fsbPyk15VvuXI$yNKenK",
+      "status": "absent_prop"
+    },
+    {
+      "id": 32407,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Ext-ERDG-2",
+      "guid": "1bzfVsJqn8De5PukCrqylz",
+      "status": "absent_prop"
+    },
+    {
+      "id": 60012,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Ext-OG-1",
+      "guid": "0knNIAVBPBFvBy_m5QVHsU",
+      "status": "absent_prop"
+    },
+    {
+      "id": 67536,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Ext-OG-2",
+      "guid": "25OWQvmXj5BPgyergP43tY",
+      "status": "absent_prop"
+    },
+    {
+      "id": 67828,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Ext-OG-3",
+      "guid": "3VCarUKgH1buLo22Ozxe6J",
+      "status": "absent_prop"
+    },
+    {
+      "id": 75347,
+      "is_a": "IfcWallStandardCase",
+      "name": "Wand-Ext-OG-4",
+      "guid": "3Ttjr$59XEWfWN1WUHjelZ",
+      "status": "absent_prop"
+    }
+  ],
+  "sample_value": null
+}
