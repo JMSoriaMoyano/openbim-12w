@@ -39,7 +39,8 @@ Uso CLI
         [--out out/s4s_bsdd.json]
 
 Autor: José M. Soria (NEXUM)
-Versión: 0.1 (S4·S Bloque A · verificaciones estructurales)
+Versión: 0.2 (S4·S Bloque B · 'compliance' añadido a check_bsdd_classification
+              para homogeneidad con check_mvd_compliance en orquestador EIR)
 """
 
 from __future__ import annotations
@@ -247,6 +248,20 @@ def check_bsdd_classification(model: ifcopenshell.file) -> dict[str, Any]:
     total = len(refs)
     compliance_pct = (bsdd_compliant / total * 100.0) if total else 0.0
 
+    # Derivar 'compliance' homogéneo con check_mvd_compliance, aplicando
+    # los mismos umbrales del EIR para que el orquestador pueda agregar
+    # ambos checks estructurales de forma uniforme.
+    # Caso especial: total==0 (modelo sin clasificaciones) cuenta como fail,
+    # ya que el EIR §3.1.6 exige clasificación a partir de H2.
+    if total == 0:
+        compliance: str = "fail"
+    elif compliance_pct >= 95.0:
+        compliance = "pass"
+    elif compliance_pct >= 60.0:
+        compliance = "partial"
+    else:
+        compliance = "fail"
+
     return {
         "query": {"type": "bsdd_classification"},
         "total_refs": total,
@@ -254,6 +269,7 @@ def check_bsdd_classification(model: ifcopenshell.file) -> dict[str, Any]:
         "non_compliant": non_compliant,
         "missing_location": missing_location,
         "compliance_pct": round(compliance_pct, 2),
+        "compliance": compliance,
         "unique_locations": dict(
             sorted(unique_locations.items(), key=lambda kv: (-kv[1], kv[0]))
         ),

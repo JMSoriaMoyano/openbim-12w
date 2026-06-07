@@ -1,0 +1,500 @@
+{
+  "eir_meta": {
+    "eir_version": "0.1",
+    "asset_type": "PBSA",
+    "hitos_in_scope": [
+      "H3",
+      "H4"
+    ],
+    "hitos_out_of_scope": [
+      "H1",
+      "H2"
+    ],
+    "source_doc": "docs/EIR_NEXUM_PBSA_v0.1.md",
+    "thresholds": {
+      "pass_min_pct": 95.0,
+      "partial_min_pct": 60.0
+    }
+  },
+  "audit_meta": {
+    "ifc_audited": "C:\\Users\\jmsor\\OpenBIM\\openbim-12w\\models\\samples\\_local\\AC20-FZK-Haus.ifc",
+    "structural_checks_count": 2,
+    "loin_checks_count": 13,
+    "total_checks": 15,
+    "thresholds_applied": {
+      "pass_min_pct": 95.0,
+      "partial_min_pct": 60.0
+    }
+  },
+  "summary": {
+    "total_checks": 15,
+    "applicable_checks": 15,
+    "counts_by_status": {
+      "pass": 3,
+      "partial": 0,
+      "fail": 12,
+      "n/a": 0,
+      "unknown": 0
+    },
+    "pct_global_pass": 20.0,
+    "by_category": {
+      "structural": {
+        "pass": 0,
+        "partial": 0,
+        "fail": 2,
+        "n/a": 0,
+        "unknown": 0
+      },
+      "loin": {
+        "pass": 3,
+        "partial": 0,
+        "fail": 10,
+        "n/a": 0,
+        "unknown": 0
+      }
+    },
+    "by_hito": {
+      "H3": {
+        "pass": 1,
+        "partial": 0,
+        "fail": 9,
+        "n/a": 0,
+        "unknown": 0
+      },
+      "H4": {
+        "pass": 2,
+        "partial": 0,
+        "fail": 3,
+        "n/a": 0,
+        "unknown": 0
+      }
+    }
+  },
+  "results": [
+    {
+      "check_id": "STR.MVD.ReferenceView",
+      "hito": "H3",
+      "category": "structural",
+      "eir_ref": "§3.1",
+      "severity": "obligatorio",
+      "rationale": "MVD Reference View en cabecera STEP garantiza interoperabilidad y compatibilidad con herramientas downstream (CDE, IDS validators).",
+      "check_fn": "check_mvd_compliance",
+      "params": {
+        "expected_mvd_substr": "ReferenceView"
+      },
+      "status": "fail",
+      "raw_result": {
+        "query": {
+          "type": "mvd_compliance",
+          "expected_substr": "ReferenceView"
+        },
+        "declared_views": [
+          "ViewDefinition [, QuantityTakeOffAddOnView, SpaceBoundary2ndLevelAddOnView]",
+          "Option [Drawing Scale: 100.000000]",
+          "Option [Global Unique Identifiers (GUID): Keep existing]",
+          "Option [Elements to export: Entire project]",
+          "Option [Partial Structure Display: Entire Model]",
+          "Option [IFC Domain: All]",
+          "Option [Structural Function: All Elements]",
+          "Option [Convert Grid elements: On]",
+          "Option [Convert IFC Annotations and ARCHICAD 2D elements: On]",
+          "Option [Convert 2D symbols of Doors and Windows: Off]",
+          "Option [Explode Composite and Complex Profile elements into parts: Off]",
+          "Option [Export geometries that Participates in Collision Detection only: On]",
+          "Option [Multi-skin complex geometries: Building element parts]",
+          "Option [Elements in Solid Element Operations: Extruded/revolved]",
+          "Option [Elements with junctions: Extruded/revolved without junctions]",
+          "Option [Slabs with slanted edge(s): Extruded]",
+          "Option [Use legacy geometric methods as in Coordination View 1.0: Off]",
+          "Option [IFC Site Geometry: As boundary representation (BRep)]",
+          "Option [IFC Site Location: At Project Origin]",
+          "Option [Properties To Export: All properties]",
+          "Option [Space containment: Off]",
+          "Option [Bounding Box: On]",
+          "Option [Geometry to type objects: On]",
+          "Option [Element Properties: On]",
+          "Option [Properties To Export: All]",
+          "Option [IFC Base Quantities: On]",
+          "Option [Window Door Lining and Panel Parameters: On]",
+          "Option [IFC Space boundaries: On]",
+          "Option [ARCHICAD Zone Categories as IFC Space classification data: On]"
+        ],
+        "expected": "ReferenceView",
+        "match_found": false,
+        "match_count": 0,
+        "extra_views": [
+          "ViewDefinition [, QuantityTakeOffAddOnView, SpaceBoundary2ndLevelAddOnView]",
+          "Option [Drawing Scale: 100.000000]",
+          "Option [Global Unique Identifiers (GUID): Keep existing]",
+          "Option [Elements to export: Entire project]",
+          "Option [Partial Structure Display: Entire Model]",
+          "Option [IFC Domain: All]",
+          "Option [Structural Function: All Elements]",
+          "Option [Convert Grid elements: On]",
+          "Option [Convert IFC Annotations and ARCHICAD 2D elements: On]",
+          "Option [Convert 2D symbols of Doors and Windows: Off]",
+          "Option [Explode Composite and Complex Profile elements into parts: Off]",
+          "Option [Export geometries that Participates in Collision Detection only: On]",
+          "Option [Multi-skin complex geometries: Building element parts]",
+          "Option [Elements in Solid Element Operations: Extruded/revolved]",
+          "Option [Elements with junctions: Extruded/revolved without junctions]",
+          "Option [Slabs with slanted edge(s): Extruded]",
+          "Option [Use legacy geometric methods as in Coordination View 1.0: Off]",
+          "Option [IFC Site Geometry: As boundary representation (BRep)]",
+          "Option [IFC Site Location: At Project Origin]",
+          "Option [Properties To Export: All properties]",
+          "Option [Space containment: Off]",
+          "Option [Bounding Box: On]",
+          "Option [Geometry to type objects: On]",
+          "Option [Element Properties: On]",
+          "Option [Properties To Export: All]",
+          "Option [IFC Base Quantities: On]",
+          "Option [Window Door Lining and Panel Parameters: On]",
+          "Option [IFC Space boundaries: On]",
+          "Option [ARCHICAD Zone Categories as IFC Space classification data: On]"
+        ],
+        "compliance": "fail"
+      }
+    },
+    {
+      "check_id": "STR.BSDD.Classification",
+      "hito": "H3",
+      "category": "structural",
+      "eir_ref": "§3.1.6",
+      "severity": "obligatorio",
+      "rationale": "Toda IfcClassificationReference.Location debe ser URI bSDD válida (bsdd.buildingsmart.org, identifier.buildingsmart.org o gubimclass.itec.cat).",
+      "check_fn": "check_bsdd_classification",
+      "params": {},
+      "status": "fail",
+      "raw_result": {
+        "query": {
+          "type": "bsdd_classification"
+        },
+        "total_refs": 1,
+        "bsdd_compliant": 0,
+        "non_compliant": 0,
+        "missing_location": 1,
+        "compliance_pct": 0.0,
+        "compliance": "fail",
+        "unique_locations": {
+          "<missing>": 1
+        },
+        "offenders": [
+          {
+            "id": 21169,
+            "is_a": "IfcClassificationReference",
+            "identification": "000",
+            "name": "Allgemeines",
+            "location": null,
+            "referenced_source_name": null,
+            "reason": "location_empty"
+          }
+        ],
+        "accepted_domains": [
+          "bsdd.buildingsmart.org",
+          "identifier.buildingsmart.org",
+          "gubimclass.itec.cat"
+        ]
+      }
+    },
+    {
+      "check_id": "H3.WALL.ThermalTransmittance",
+      "hito": "H3",
+      "category": "loin",
+      "eir_ref": "§4.2.ARQ",
+      "severity": "obligatorio",
+      "rationale": "Cumplimiento CTE DB-HE: transmitancia térmica del cerramiento opaco.",
+      "ifc_type": "IfcWallStandardCase",
+      "pset": "Pset_WallCommon",
+      "prop": "ThermalTransmittance",
+      "check_fn": "query_missing_property",
+      "total": 13,
+      "present": 13,
+      "compliance_pct": 100.0,
+      "offenders_count": 0,
+      "status": "pass",
+      "compliance_breakdown": {
+        "present": 13,
+        "absent_pset": 0,
+        "absent_prop": 0,
+        "present_none": 0
+      }
+    },
+    {
+      "check_id": "H3.WALL.FireRating",
+      "hito": "H3",
+      "category": "loin",
+      "eir_ref": "§4.2.ARQ",
+      "severity": "obligatorio",
+      "rationale": "Cumplimiento CTE DB-SI: resistencia al fuego de la compartimentación.",
+      "ifc_type": "IfcWallStandardCase",
+      "pset": "Pset_WallCommon",
+      "prop": "FireRating",
+      "check_fn": "query_missing_property",
+      "total": 13,
+      "present": 0,
+      "compliance_pct": 0.0,
+      "offenders_count": 13,
+      "status": "fail",
+      "compliance_breakdown": {
+        "present": 0,
+        "absent_pset": 0,
+        "absent_prop": 13,
+        "present_none": 0
+      }
+    },
+    {
+      "check_id": "H3.WALL.LoadBearing",
+      "hito": "H3",
+      "category": "loin",
+      "eir_ref": "§4.2.EST",
+      "severity": "obligatorio",
+      "rationale": "Diferenciación estructural vs no estructural para análisis EST y QTO.",
+      "ifc_type": "IfcWallStandardCase",
+      "pset": "Pset_WallCommon",
+      "prop": "LoadBearing",
+      "check_fn": "query_missing_property",
+      "total": 13,
+      "present": 0,
+      "compliance_pct": 0.0,
+      "offenders_count": 13,
+      "status": "fail",
+      "compliance_breakdown": {
+        "present": 0,
+        "absent_pset": 0,
+        "absent_prop": 13,
+        "present_none": 0
+      }
+    },
+    {
+      "check_id": "H3.WALL.IsExternal",
+      "hito": "H3",
+      "category": "loin",
+      "eir_ref": "§4.2.ARQ",
+      "severity": "obligatorio",
+      "rationale": "Distinción envolvente vs interior para cálculo CTE DB-HE y BREEAM.",
+      "ifc_type": "IfcWallStandardCase",
+      "pset": "Pset_WallCommon",
+      "prop": "IsExternal",
+      "check_fn": "query_missing_property",
+      "total": 13,
+      "present": 0,
+      "compliance_pct": 0.0,
+      "offenders_count": 13,
+      "status": "fail",
+      "compliance_breakdown": {
+        "present": 0,
+        "absent_pset": 0,
+        "absent_prop": 13,
+        "present_none": 0
+      }
+    },
+    {
+      "check_id": "H3.SLAB.FireRating",
+      "hito": "H3",
+      "category": "loin",
+      "eir_ref": "§4.2.ARQ",
+      "severity": "obligatorio",
+      "rationale": "Compartimentación horizontal CTE DB-SI.",
+      "ifc_type": "IfcSlab",
+      "pset": "Pset_SlabCommon",
+      "prop": "FireRating",
+      "check_fn": "query_missing_property",
+      "total": 4,
+      "present": 0,
+      "compliance_pct": 0.0,
+      "offenders_count": 4,
+      "status": "fail",
+      "compliance_breakdown": {
+        "present": 0,
+        "absent_pset": 0,
+        "absent_prop": 4,
+        "present_none": 0
+      }
+    },
+    {
+      "check_id": "H3.SLAB.LoadBearing",
+      "hito": "H3",
+      "category": "loin",
+      "eir_ref": "§4.2.EST",
+      "severity": "obligatorio",
+      "rationale": "Identificación de losas estructurales para análisis EST.",
+      "ifc_type": "IfcSlab",
+      "pset": "Pset_SlabCommon",
+      "prop": "LoadBearing",
+      "check_fn": "query_missing_property",
+      "total": 4,
+      "present": 0,
+      "compliance_pct": 0.0,
+      "offenders_count": 4,
+      "status": "fail",
+      "compliance_breakdown": {
+        "present": 0,
+        "absent_pset": 0,
+        "absent_prop": 4,
+        "present_none": 0
+      }
+    },
+    {
+      "check_id": "H3.DOOR.FireRating",
+      "hito": "H3",
+      "category": "loin",
+      "eir_ref": "§4.2.ARQ",
+      "severity": "obligatorio",
+      "rationale": "Puertas EI obligatorias en sectorización CTE DB-SI.",
+      "ifc_type": "IfcDoor",
+      "pset": "Pset_DoorCommon",
+      "prop": "FireRating",
+      "check_fn": "query_missing_property",
+      "total": 5,
+      "present": 2,
+      "compliance_pct": 40.0,
+      "offenders_count": 3,
+      "status": "fail",
+      "compliance_breakdown": {
+        "present": 2,
+        "absent_pset": 0,
+        "absent_prop": 3,
+        "present_none": 0
+      }
+    },
+    {
+      "check_id": "H3.WINDOW.IsExternal",
+      "hito": "H3",
+      "category": "loin",
+      "eir_ref": "§4.2.ARQ",
+      "severity": "obligatorio",
+      "rationale": "Ventanas en envolvente para cálculo CTE DB-HE y BREEAM Energy.",
+      "ifc_type": "IfcWindow",
+      "pset": "Pset_WindowCommon",
+      "prop": "IsExternal",
+      "check_fn": "query_missing_property",
+      "total": 11,
+      "present": 0,
+      "compliance_pct": 0.0,
+      "offenders_count": 11,
+      "status": "fail",
+      "compliance_breakdown": {
+        "present": 0,
+        "absent_pset": 0,
+        "absent_prop": 11,
+        "present_none": 0
+      }
+    },
+    {
+      "check_id": "H4.SPACE.GrossPlannedArea",
+      "hito": "H4",
+      "category": "loin",
+      "eir_ref": "§4.4.FM",
+      "severity": "obligatorio",
+      "rationale": "Superficie útil por unidad para gestión PBSA (rent-roll, ratio €/m²).",
+      "ifc_type": "IfcSpace",
+      "pset": "Pset_SpaceCommon",
+      "prop": "GrossPlannedArea",
+      "check_fn": "query_missing_property",
+      "total": 7,
+      "present": 0,
+      "compliance_pct": 0.0,
+      "offenders_count": 7,
+      "status": "fail",
+      "compliance_breakdown": {
+        "present": 0,
+        "absent_pset": 0,
+        "absent_prop": 7,
+        "present_none": 0
+      }
+    },
+    {
+      "check_id": "H4.SPACE.IsExternal",
+      "hito": "H4",
+      "category": "loin",
+      "eir_ref": "§4.4.FM",
+      "severity": "obligatorio",
+      "rationale": "Diferenciación espacios climatizados vs exteriores para FM y costes operativos.",
+      "ifc_type": "IfcSpace",
+      "pset": "Pset_SpaceCommon",
+      "prop": "IsExternal",
+      "check_fn": "query_missing_property",
+      "total": 7,
+      "present": 0,
+      "compliance_pct": 0.0,
+      "offenders_count": 7,
+      "status": "fail",
+      "compliance_breakdown": {
+        "present": 0,
+        "absent_pset": 0,
+        "absent_prop": 7,
+        "present_none": 0
+      }
+    },
+    {
+      "check_id": "H4.STOREY.EntranceLevel",
+      "hito": "H4",
+      "category": "loin",
+      "eir_ref": "§4.4.FM",
+      "severity": "obligatorio",
+      "rationale": "Identificación planta de acceso para señalética, evacuación y wayfinding.",
+      "ifc_type": "IfcBuildingStorey",
+      "pset": "Pset_BuildingStoreyCommon",
+      "prop": "EntranceLevel",
+      "check_fn": "query_missing_property",
+      "total": 2,
+      "present": 0,
+      "compliance_pct": 0.0,
+      "offenders_count": 2,
+      "status": "fail",
+      "compliance_breakdown": {
+        "present": 0,
+        "absent_pset": 2,
+        "absent_prop": 0,
+        "present_none": 0
+      }
+    },
+    {
+      "check_id": "H4.BUILDING.YearOfConstruction",
+      "hito": "H4",
+      "category": "loin",
+      "eir_ref": "§4.4.FM",
+      "severity": "obligatorio",
+      "rationale": "Año de construcción para mantenimiento, ciclo de vida y reporting SFDR.",
+      "ifc_type": "IfcBuilding",
+      "pset": "Pset_BuildingCommon",
+      "prop": "YearOfConstruction",
+      "check_fn": "query_missing_property",
+      "total": 1,
+      "present": 1,
+      "compliance_pct": 100.0,
+      "offenders_count": 0,
+      "status": "pass",
+      "compliance_breakdown": {
+        "present": 1,
+        "absent_pset": 0,
+        "absent_prop": 0,
+        "present_none": 0
+      }
+    },
+    {
+      "check_id": "H4.BUILDING.NumberOfStoreys",
+      "hito": "H4",
+      "category": "loin",
+      "eir_ref": "§4.4.FM",
+      "severity": "obligatorio",
+      "rationale": "Nº de plantas para registros patrimoniales, seguros y FM.",
+      "ifc_type": "IfcBuilding",
+      "pset": "Pset_BuildingCommon",
+      "prop": "NumberOfStoreys",
+      "check_fn": "query_missing_property",
+      "total": 1,
+      "present": 1,
+      "compliance_pct": 100.0,
+      "offenders_count": 0,
+      "status": "pass",
+      "compliance_breakdown": {
+        "present": 1,
+        "absent_pset": 0,
+        "absent_prop": 0,
+        "present_none": 0
+      }
+    }
+  ]
+}
