@@ -1,0 +1,29 @@
+{
+  "query": {
+    "type": "bsdd_classification"
+  },
+  "total_refs": 1,
+  "bsdd_compliant": 0,
+  "non_compliant": 0,
+  "missing_location": 1,
+  "compliance_pct": 0.0,
+  "unique_locations": {
+    "<missing>": 1
+  },
+  "offenders": [
+    {
+      "id": 21169,
+      "is_a": "IfcClassificationReference",
+      "identification": "000",
+      "name": "Allgemeines",
+      "location": null,
+      "referenced_source_name": null,
+      "reason": "location_empty"
+    }
+  ],
+  "accepted_domains": [
+    "bsdd.buildingsmart.org",
+    "identifier.buildingsmart.org",
+    "gubimclass.itec.cat"
+  ]
+}
