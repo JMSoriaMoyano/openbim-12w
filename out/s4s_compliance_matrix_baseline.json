@@ -14,7 +14,29 @@
     "thresholds": {
       "pass_min_pct": 95.0,
       "partial_min_pct": 60.0
-    }
+    },
+    "frozen_at": "2026-06-07",
+    "frozen_at_tag": "e4-closed",
+    "frozen_at_commit": "a0c2311",
+    "variant": "generico_v0_1",
+    "variant_note": "Mezcla diseño + as-built sin separación contractual. Ver DF-01.",
+    "pending_refactors": [
+      {
+        "id": "DF-01",
+        "title": "Variantes contractuales del EIR",
+        "raised_in_session": "S5·L",
+        "raised_at": "2026-06-08",
+        "description": "Un proyecto real tiene N EIR (uno por BEP/contrato). Para PBSA NEXUM deben separarse al menos: EIR_diseno (objetivo 5D · control de coste) y EIR_contratista (objetivo 4D · planificación).\n",
+        "target_structure": [
+          "eir/PBSA_v0.x_comun.yaml          # cabecera, MVD, bSDD, geometría base",
+          "eir/PBSA_v0.x_diseno.yaml         # extiende común + 5D (QTO, coste)",
+          "eir/PBSA_v0.x_contratista.yaml    # extiende común + 4D (planificación)",
+          "eir/PBSA_v0.x_asbuilt.yaml        # extiende común + LOIN-FM operador"
+        ],
+        "target_session": "S5·X (10/06/2026)",
+        "status": "open"
+      }
+    ]
   },
   "audit_meta": {
     "ifc_audited": "C:\\Users\\jmsor\\OpenBIM\\openbim-12w\\models\\samples\\_local\\AC20-FZK-Haus.ifc",

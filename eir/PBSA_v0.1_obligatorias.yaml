@@ -54,6 +54,44 @@ meta:
     pass_min_pct: 95.0
     partial_min_pct: 60.0
 
+  # ---------------------------------------------------------------------------
+  # Freeze v0.1 · cierre E4
+  # ---------------------------------------------------------------------------
+  # Esta versión se congela tras la auditoría E4 (07/06/2026, tag e4-closed).
+  # No se modificará retroactivamente: cualquier cambio debe ir a v0.2 o superior.
+  frozen_at: "2026-06-07"
+  frozen_at_tag: "e4-closed"
+  frozen_at_commit: "a0c2311"
+
+  # ---------------------------------------------------------------------------
+  # Variante contractual del EIR
+  # ---------------------------------------------------------------------------
+  # v0.1 NO distingue entre tipos de contrato: mezcla requisitos típicos de
+  # EIR de diseño + EIR de as-built. Esta es deuda DF-01 (ver pending_refactors)
+  # y se corregirá a partir de v0.2 en S5·X.
+  variant: "generico_v0_1"
+  variant_note: "Mezcla diseño + as-built sin separación contractual. Ver DF-01."
+
+  # ---------------------------------------------------------------------------
+  # Refactors pendientes (deudas formativas estructurales)
+  # ---------------------------------------------------------------------------
+  pending_refactors:
+    - id: "DF-01"
+      title: "Variantes contractuales del EIR"
+      raised_in_session: "S5·L"
+      raised_at: "2026-06-08"
+      description: >
+        Un proyecto real tiene N EIR (uno por BEP/contrato). Para PBSA NEXUM
+        deben separarse al menos: EIR_diseno (objetivo 5D · control de coste)
+        y EIR_contratista (objetivo 4D · planificación).
+      target_structure:
+        - "eir/PBSA_v0.x_comun.yaml          # cabecera, MVD, bSDD, geometría base"
+        - "eir/PBSA_v0.x_diseno.yaml         # extiende común + 5D (QTO, coste)"
+        - "eir/PBSA_v0.x_contratista.yaml    # extiende común + 4D (planificación)"
+        - "eir/PBSA_v0.x_asbuilt.yaml        # extiende común + LOIN-FM operador"
+      target_session: "S5·X (10/06/2026)"
+      status: "open"
+
 # -----------------------------------------------------------------------------
 # Verificaciones estructurales (modelo completo)
 # -----------------------------------------------------------------------------
