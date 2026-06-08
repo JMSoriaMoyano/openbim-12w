@@ -1,0 +1,1998 @@
+{
+  "model_meta": {
+    "schema": "IFC4",
+    "ifc_product_total": 127,
+    "elements_processed": 90,
+    "include_types": null,
+    "exclude_types": [
+      "IfcOpeningElement",
+      "IfcVirtualElement"
+    ]
+  },
+  "global_bbox": {
+    "min": [
+      -3.0,
+      -3.0,
+      -1.0
+    ],
+    "max": [
+      15.0,
+      13.0,
+      6.317691453627097
+    ]
+  },
+  "by_type": {
+    "IfcMember": {
+      "count": 42,
+      "total_vertices": 336,
+      "total_triangles": 504,
+      "bbox": {
+        "min": [
+          -0.4999999999999,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          12.5000000000059,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    "IfcWallStandardCase": {
+      "count": 13,
+      "total_vertices": 1024,
+      "total_triangles": 2040,
+      "bbox": {
+        "min": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max": [
+          12.0,
+          10.0,
+          6.08675134594856
+        ]
+      }
+    },
+    "IfcWindow": {
+      "count": 11,
+      "total_vertices": 3368,
+      "total_triangles": 6644,
+      "bbox": {
+        "min": [
+          0.095,
+          0.12,
+          0.8
+        ],
+        "max": [
+          11.885,
+          9.88,
+          4.5
+        ]
+      }
+    },
+    "IfcSpace": {
+      "count": 7,
+      "total_vertices": 74,
+      "total_triangles": 120,
+      "bbox": {
+        "min": [
+          0.29999999999999893,
+          0.29999999999999893,
+          0.0
+        ],
+        "max": [
+          11.7,
+          9.7,
+          6.086751345950001
+        ]
+      }
+    },
+    "IfcDoor": {
+      "count": 5,
+      "total_vertices": 1054,
+      "total_triangles": 1912,
+      "bbox": {
+        "min": [
+          0.16,
+          0.12,
+          0.0
+        ],
+        "max": [
+          7.51,
+          5.85,
+          2.375
+        ]
+      }
+    },
+    "IfcBeam": {
+      "count": 4,
+      "total_vertices": 32,
+      "total_triangles": 48,
+      "bbox": {
+        "min": [
+          -0.5,
+          0.19052558134810002,
+          2.26
+        ],
+        "max": [
+          12.5,
+          9.8094744186559,
+          6.086751345950001
+        ]
+      }
+    },
+    "IfcSlab": {
+      "count": 4,
+      "total_vertices": 40,
+      "total_triangles": 68,
+      "bbox": {
+        "min": [
+          -0.5,
+          -0.5000000000002608,
+          -0.2
+        ],
+        "max": [
+          12.5,
+          10.500000000000261,
+          6.317691453627097
+        ]
+      }
+    },
+    "IfcRailing": {
+      "count": 2,
+      "total_vertices": 3936,
+      "total_triangles": 7776,
+      "bbox": {
+        "min": [
+          7.32762595464,
+          1.2565261309300002,
+          2.7
+        ],
+        "max": [
+          11.7,
+          4.09,
+          3.7
+        ]
+      }
+    },
+    "IfcSite": {
+      "count": 1,
+      "total_vertices": 32,
+      "total_triangles": 48,
+      "bbox": {
+        "min": [
+          -3.0,
+          -3.0,
+          -1.0
+        ],
+        "max": [
+          15.0,
+          13.0,
+          0.0
+        ]
+      }
+    },
+    "IfcStair": {
+      "count": 1,
+      "total_vertices": 1332,
+      "total_triangles": 2614,
+      "bbox": {
+        "min": [
+          6.718340483463644,
+          2.2426339294044926,
+          0.0
+        ],
+        "max": [
+          8.314767550765957,
+          3.951552898233065,
+          3.56
+        ]
+      }
+    }
+  },
+  "elements": [
+    {
+      "id": 20374,
+      "global_id": "3tCgZT92j6fw8fXgwCL3Jm",
+      "type": "IfcBeam",
+      "name": "Unterzug-1",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          3.57003939805,
+          4.03,
+          2.26
+        ],
+        "max": [
+          7.65,
+          4.2299999999999995,
+          2.5
+        ]
+      }
+    },
+    {
+      "id": 37582,
+      "global_id": "0eaC0nL3XAOfFxRXK_2iAr",
+      "type": "IfcBeam",
+      "name": "Pfette-2-1",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          -0.5,
+          9.7294744204441,
+          3.2
+        ],
+        "max": [
+          12.5,
+          9.8094744186559,
+          3.3599999964240004
+        ]
+      }
+    },
+    {
+      "id": 40416,
+      "global_id": "3jZHeNcfvDMf9wG$wx9XqG",
+      "type": "IfcBeam",
+      "name": "Pfette-1-1",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          -0.5,
+          0.19052558134810002,
+          3.2
+        ],
+        "max": [
+          12.5,
+          0.27052557955990003,
+          3.3599999964240004
+        ]
+      }
+    },
+    {
+      "id": 40539,
+      "global_id": "20bTaetQDApP5w8egFxj13",
+      "type": "IfcBeam",
+      "name": "First",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          -0.5,
+          4.9600000008941,
+          5.9267513495260005
+        ],
+        "max": [
+          12.5,
+          5.0399999991059,
+          6.086751345950001
+        ]
+      }
+    },
+    {
+      "id": 17468,
+      "global_id": "1Oms875aH3Wg$9l65H2ZGw",
+      "type": "IfcDoor",
+      "name": "Innentuer-1",
+      "vertices_count": 24,
+      "triangles_count": 40,
+      "bbox": {
+        "min": [
+          7.41,
+          4.5575,
+          0.0
+        ],
+        "max": [
+          7.51,
+          5.4425,
+          2.01
+        ]
+      }
+    },
+    {
+      "id": 19199,
+      "global_id": "0pGAjlJMP3ifYPATVF5xAR",
+      "type": "IfcDoor",
+      "name": "Innentuer-2",
+      "vertices_count": 24,
+      "triangles_count": 40,
+      "bbox": {
+        "min": [
+          5.2175,
+          5.75,
+          0.0
+        ],
+        "max": [
+          6.1025,
+          5.85,
+          2.01
+        ]
+      }
+    },
+    {
+      "id": 19504,
+      "global_id": "2qiPPF3FrF8OIqfrKiSUqm",
+      "type": "IfcDoor",
+      "name": "Innentuer-3",
+      "vertices_count": 24,
+      "triangles_count": 40,
+      "bbox": {
+        "min": [
+          1.6075,
+          5.75,
+          0.0
+        ],
+        "max": [
+          2.4924999999999997,
+          5.85,
+          2.01
+        ]
+      }
+    },
+    {
+      "id": 27013,
+      "global_id": "2jTRqchjf7oB0yhQ6462T0",
+      "type": "IfcDoor",
+      "name": "Haustuer",
+      "vertices_count": 502,
+      "triangles_count": 948,
+      "bbox": {
+        "min": [
+          0.16,
+          4.495,
+          0.0
+        ],
+        "max": [
+          0.35,
+          5.505,
+          2.01
+        ]
+      }
+    },
+    {
+      "id": 31079,
+      "global_id": "1M$gxUrX1Fiwe3P64ww7U5",
+      "type": "IfcDoor",
+      "name": "Terrassentuer",
+      "vertices_count": 480,
+      "triangles_count": 844,
+      "bbox": {
+        "min": [
+          4.995,
+          0.12,
+          0.0
+        ],
+        "max": [
+          7.005,
+          0.325,
+          2.375
+        ]
+      }
+    },
+    {
+      "id": 35169,
+      "global_id": "0oTQ6V1VbChulreA_hfmUa",
+      "type": "IfcMember",
+      "name": "Sparren-1",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          1.0600000843441002,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          1.1400000825559,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 35304,
+      "global_id": "1tpUOcVEPCGgFqSz0VbniQ",
+      "type": "IfcMember",
+      "name": "Sparren-2",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          10.1599999293941,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          10.2399999276059,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 35427,
+      "global_id": "1ulHlNTuj798Os3k9phhVC",
+      "type": "IfcMember",
+      "name": "Sparren-3",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          9.4599999412941,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          9.5399999395059,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 35550,
+      "global_id": "1OckORehXEoB_KILQGJao5",
+      "type": "IfcMember",
+      "name": "Sparren-4",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          8.7599999532141,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          8.8399999514259,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 35673,
+      "global_id": "0nsN_jkIrBQBuGFMg_zMEg",
+      "type": "IfcMember",
+      "name": "Sparren-5",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          8.0599999651341,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          8.1399999633459,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 35796,
+      "global_id": "31Quw2HAvFqv$9_JgCuemp",
+      "type": "IfcMember",
+      "name": "Sparren-6",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          6.6599999889741,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          6.7399999871859,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 35919,
+      "global_id": "35W3cFc4L7MhJR0gIk9uis",
+      "type": "IfcMember",
+      "name": "Sparren-7",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          5.9600000008941,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          6.0399999991059,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 36042,
+      "global_id": "3F58AqxJfF$QkuoceQhWg3",
+      "type": "IfcMember",
+      "name": "Sparren-8",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          5.2600000128141,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          5.3400000110259,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 36165,
+      "global_id": "1nGDFBBHvBJ9NmlweQO0fX",
+      "type": "IfcMember",
+      "name": "Sparren-9",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          4.5600000247341,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          4.6400000229459,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 36288,
+      "global_id": "3qFc3Wrr9BBPJyb2wB$4Ra",
+      "type": "IfcMember",
+      "name": "Sparren-10",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          3.8600000366541,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          3.9400000348659003,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 36411,
+      "global_id": "37ab3q_iz8XRterfnMKTQX",
+      "type": "IfcMember",
+      "name": "Sparren-11",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          3.1600000485741,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          3.2400000467859003,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 36534,
+      "global_id": "3xdLwxTMD7bw4hWoOQL41M",
+      "type": "IfcMember",
+      "name": "Sparren-12",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          2.4600000604941,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          2.5400000587059,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 36657,
+      "global_id": "2OHMT7B69F5PRG_f3rMcjF",
+      "type": "IfcMember",
+      "name": "Sparren-13",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          1.7600000724241,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          1.8400000706358999,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 36780,
+      "global_id": "34zPS2PUTBDOe7g7RIRXK0",
+      "type": "IfcMember",
+      "name": "Sparren-14",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          0.36000009626109997,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          0.4400000944729,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 36903,
+      "global_id": "0VzptM87L6uOjQj08tTXIQ",
+      "type": "IfcMember",
+      "name": "Sparren-15",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          -0.3399998918179,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          -0.2599998936061,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 37026,
+      "global_id": "2CxE0$jXr8iOH1VC2gLCXX",
+      "type": "IfcMember",
+      "name": "Sparren-16",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          12.420000001794099,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          12.5000000000059,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 37149,
+      "global_id": "3sG$iUZAX499eUK87UfZk_",
+      "type": "IfcMember",
+      "name": "Sparren-17",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          12.2599998935941,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          12.3399998918059,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 37272,
+      "global_id": "0q1clcN4jF4gdikC9OySy7",
+      "type": "IfcMember",
+      "name": "Sparren-18",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          11.5599999054941,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          11.6399999037059,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 37395,
+      "global_id": "36KGWr2Rv8QuUhNnocm2nH",
+      "type": "IfcMember",
+      "name": "Sparren-19",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          10.8599999174941,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          10.9399999157059,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 37710,
+      "global_id": "0OKCG9uG53i9K16_x3YNfz",
+      "type": "IfcMember",
+      "name": "Sparren-20",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          -0.4999999999999,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          -0.4200000017881,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 37833,
+      "global_id": "3ePWkSzvLApwXTt3b0I2nV",
+      "type": "IfcMember",
+      "name": "Sparren-21",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          -0.4999999999999,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          -0.4200000017881,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 37956,
+      "global_id": "09OmJpUcj4WvNp2dXHFMWj",
+      "type": "IfcMember",
+      "name": "Sparren-22",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          -0.3399998918179,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          -0.2599998936061,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 38079,
+      "global_id": "3iSL8frGLDweFar9j4zgJ_",
+      "type": "IfcMember",
+      "name": "Sparren-23",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          0.36000009626109997,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          0.4400000944729,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 38202,
+      "global_id": "23pmL_2aH88OVqWp_5Lfkf",
+      "type": "IfcMember",
+      "name": "Sparren-24",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          1.0600000843441002,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          1.1400000825559,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 38325,
+      "global_id": "06JZMOVBX8VucSQwQ3o$8d",
+      "type": "IfcMember",
+      "name": "Sparren-25",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          1.7600000724241,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          1.8400000706358999,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 38448,
+      "global_id": "31ry3UPYD7weLluBlhQxXZ",
+      "type": "IfcMember",
+      "name": "Sparren-26",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          2.4600000604941,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          2.5400000587059,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 38571,
+      "global_id": "20AsUDMgH0JwAitydKgsOm",
+      "type": "IfcMember",
+      "name": "Sparren-27",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          3.1600000485741,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          3.2400000467859003,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 38694,
+      "global_id": "2SfSpj_pX9nvTeCOxeKqTd",
+      "type": "IfcMember",
+      "name": "Sparren-28",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          3.8600000366541,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          3.9400000348659003,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 38817,
+      "global_id": "17MHCgVYn2YPLX56yXUJbL",
+      "type": "IfcMember",
+      "name": "Sparren-29",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          4.5600000247341,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          4.6400000229459,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 38940,
+      "global_id": "2XyYurmzzDOAIoZ52R97Jm",
+      "type": "IfcMember",
+      "name": "Sparren-30",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          5.2600000128141,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          5.3400000110259,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 39063,
+      "global_id": "0hRh9WB$jCLwlAiq3vfmg9",
+      "type": "IfcMember",
+      "name": "Sparren-31",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          5.9600000008941,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          6.0399999991059,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 39186,
+      "global_id": "1NBDw_i_jD$u7IjvwmbPmx",
+      "type": "IfcMember",
+      "name": "Sparren-32",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          6.6599999889741,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          6.7399999871859,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 39309,
+      "global_id": "2DH$OLoObDkAtwqVzNdUnS",
+      "type": "IfcMember",
+      "name": "Sparren-33",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          7.3599999770541,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          7.4399999752659,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 39432,
+      "global_id": "1qMEiq1Qz6guq8g1GCODiJ",
+      "type": "IfcMember",
+      "name": "Sparren-34",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          8.0599999651341,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          8.1399999633459,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 39555,
+      "global_id": "2AxITdtlD1h9Y3ye8U93bV",
+      "type": "IfcMember",
+      "name": "Sparren-35",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          8.7599999532141,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          8.8399999514259,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 39678,
+      "global_id": "0DTRkEz0r6gvzG6VdDr24n",
+      "type": "IfcMember",
+      "name": "Sparren-36",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          9.4599999412941,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          9.5399999395059,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 39801,
+      "global_id": "3UTqpydzf7i8J6iMY2tHil",
+      "type": "IfcMember",
+      "name": "Sparren-37",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          10.1599999293941,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          10.2399999276059,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 39924,
+      "global_id": "3CS1rsE3bB7vMHAdjyaamh",
+      "type": "IfcMember",
+      "name": "Sparren-38",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          10.8599999174941,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          10.9399999157059,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 40047,
+      "global_id": "2jBFZiQw110vV7XY77KKfx",
+      "type": "IfcMember",
+      "name": "Sparren-39",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          11.5599999054941,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          11.6399999037059,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 40170,
+      "global_id": "22oN_bO9T4jO5eG4GKW7be",
+      "type": "IfcMember",
+      "name": "Sparren-40",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          12.2599998935941,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          12.3399998918059,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 40293,
+      "global_id": "2in0QvfYXEawl1f3MP1bq2",
+      "type": "IfcMember",
+      "name": "Sparren-41",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          12.420000001794099,
+          -0.5,
+          2.911324865405
+        ],
+        "max": [
+          12.5000000000059,
+          5.0,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 40662,
+      "global_id": "3EgsECVVb6zQXnK3YFcWAu",
+      "type": "IfcMember",
+      "name": "Sparren-42",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          7.3599999770541,
+          5.0,
+          2.911324865405
+        ],
+        "max": [
+          7.4399999752659,
+          10.5,
+          6.271503427960001
+        ]
+      }
+    },
+    {
+      "id": 49831,
+      "global_id": "0o5vgCKyTBzO5$QJcI2YDP",
+      "type": "IfcRailing",
+      "name": "",
+      "vertices_count": 1968,
+      "triangles_count": 3888,
+      "bbox": {
+        "min": [
+          7.32762595464,
+          1.2565261309300002,
+          2.7
+        ],
+        "max": [
+          7.40762595464,
+          3.25652613093,
+          3.7
+        ]
+      }
+    },
+    {
+      "id": 59075,
+      "global_id": "09axaKU7X1_O8n6dmmiZ1E",
+      "type": "IfcRailing",
+      "name": "",
+      "vertices_count": 1968,
+      "triangles_count": 3888,
+      "bbox": {
+        "min": [
+          7.41,
+          4.01,
+          2.7
+        ],
+        "max": [
+          11.7,
+          4.09,
+          3.7
+        ]
+      }
+    },
+    {
+      "id": 34509,
+      "global_id": "1pPHnf7cXCpPsNEnQf8_6B",
+      "type": "IfcSlab",
+      "name": "Bodenplatte",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          0.0,
+          0.0,
+          -0.2
+        ],
+        "max": [
+          12.0,
+          10.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "id": 59290,
+      "global_id": "2RGlQk4xH47RHK93zcTzUL",
+      "type": "IfcSlab",
+      "name": "Slab-033",
+      "vertices_count": 16,
+      "triangles_count": 32,
+      "bbox": {
+        "min": [
+          0.1,
+          0.1,
+          2.5
+        ],
+        "max": [
+          11.9,
+          9.9,
+          2.7
+        ]
+      }
+    },
+    {
+      "id": 59553,
+      "global_id": "07Enbsqm9C7AQC9iyBwfSD",
+      "type": "IfcSlab",
+      "name": "Dach-1",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          -0.5,
+          4.999999999997392,
+          2.9113248654048904
+        ],
+        "max": [
+          12.5,
+          10.500000000000261,
+          6.317691453627097
+        ]
+      }
+    },
+    {
+      "id": 59753,
+      "global_id": "2IxUUNUVPB6Ob$eicCfP2N",
+      "type": "IfcSlab",
+      "name": "Dach-2",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          -0.5,
+          -0.5000000000002608,
+          2.9113248654048904
+        ],
+        "max": [
+          12.5,
+          5.000000000002608,
+          6.317691453627097
+        ]
+      }
+    },
+    {
+      "id": 14502,
+      "global_id": "38a9vdh9bF5Qg28GWyHhlr",
+      "type": "IfcStair",
+      "name": "Wendeltreppe",
+      "vertices_count": 1332,
+      "triangles_count": 2614,
+      "bbox": {
+        "min": [
+          6.718340483463644,
+          2.2426339294044926,
+          0.0
+        ],
+        "max": [
+          8.314767550765957,
+          3.951552898233065,
+          3.56
+        ]
+      }
+    },
+    {
+      "id": 15042,
+      "global_id": "2XPyKWY018sA1ygZKgQPtU",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Int-ERDG-4",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          7.41,
+          4.01,
+          0.0
+        ],
+        "max": [
+          11.7,
+          4.25,
+          2.5
+        ]
+      }
+    },
+    {
+      "id": 17040,
+      "global_id": "3PfS__Y_DBAfq5naM6zD2Z",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Int-ERDG-2",
+      "vertices_count": 16,
+      "triangles_count": 28,
+      "bbox": {
+        "min": [
+          7.41,
+          4.01,
+          0.0
+        ],
+        "max": [
+          7.65,
+          9.7,
+          2.5
+        ]
+      }
+    },
+    {
+      "id": 18465,
+      "global_id": "2ptk1k7qn8_Qk22vjh$0DE",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Int-ERDG-1",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          3.8,
+          5.99,
+          0.0
+        ],
+        "max": [
+          4.04,
+          9.7,
+          2.5
+        ]
+      }
+    },
+    {
+      "id": 18698,
+      "global_id": "3jjW3rL656ex34Gws22EfM",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Int-ERDG-3",
+      "vertices_count": 24,
+      "triangles_count": 44,
+      "bbox": {
+        "min": [
+          0.3,
+          5.75,
+          0.0
+        ],
+        "max": [
+          7.41,
+          5.99,
+          2.5
+        ]
+      }
+    },
+    {
+      "id": 20598,
+      "global_id": "1$wmdwWPjDYuku_ghVkynE",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Int-ERDG-5",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          0.3,
+          4.01,
+          0.0
+        ],
+        "max": [
+          3.8,
+          4.25,
+          2.5
+        ]
+      }
+    },
+    {
+      "id": 21966,
+      "global_id": "3rPX_Juz59peXXY6wDJl18",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Ext-ERDG-1",
+      "vertices_count": 40,
+      "triangles_count": 84,
+      "bbox": {
+        "min": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max": [
+          0.3,
+          10.0,
+          2.7
+        ]
+      }
+    },
+    {
+      "id": 27421,
+      "global_id": "16DNNqzfP2thtfaOflvsKA",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Ext-ERDG-4",
+      "vertices_count": 40,
+      "triangles_count": 84,
+      "bbox": {
+        "min": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max": [
+          12.0,
+          0.3,
+          2.7
+        ]
+      }
+    },
+    {
+      "id": 31470,
+      "global_id": "25fsbPyk15VvuXI$yNKenK",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Ext-ERDG-3",
+      "vertices_count": 32,
+      "triangles_count": 68,
+      "bbox": {
+        "min": [
+          11.7,
+          0.0,
+          0.0
+        ],
+        "max": [
+          12.0,
+          10.0,
+          2.7
+        ]
+      }
+    },
+    {
+      "id": 32407,
+      "global_id": "1bzfVsJqn8De5PukCrqylz",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Ext-ERDG-2",
+      "vertices_count": 44,
+      "triangles_count": 96,
+      "bbox": {
+        "min": [
+          0.0,
+          9.7,
+          0.0
+        ],
+        "max": [
+          12.0,
+          10.0,
+          2.7
+        ]
+      }
+    },
+    {
+      "id": 60012,
+      "global_id": "0knNIAVBPBFvBy_m5QVHsU",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Ext-OG-1",
+      "vertices_count": 394,
+      "triangles_count": 788,
+      "bbox": {
+        "min": [
+          0.0,
+          0.0,
+          2.7
+        ],
+        "max": [
+          0.3,
+          10.0,
+          6.08675134594856
+        ]
+      }
+    },
+    {
+      "id": 67536,
+      "global_id": "25OWQvmXj5BPgyergP43tY",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Ext-OG-2",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          0.0,
+          9.7,
+          2.7
+        ],
+        "max": [
+          12.0,
+          10.0,
+          3.373205080756976
+        ]
+      }
+    },
+    {
+      "id": 67828,
+      "global_id": "3VCarUKgH1buLo22Ozxe6J",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Ext-OG-3",
+      "vertices_count": 394,
+      "triangles_count": 788,
+      "bbox": {
+        "min": [
+          11.7,
+          0.0,
+          2.7
+        ],
+        "max": [
+          12.0,
+          10.0,
+          6.08675134594856
+        ]
+      }
+    },
+    {
+      "id": 75347,
+      "global_id": "3Ttjr$59XEWfWN1WUHjelZ",
+      "type": "IfcWallStandardCase",
+      "name": "Wand-Ext-OG-4",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          0.0,
+          0.0,
+          2.7
+        ],
+        "max": [
+          12.0,
+          0.3,
+          3.373205080756976
+        ]
+      }
+    },
+    {
+      "id": 23024,
+      "global_id": "1srAI$R4T8ihLXSNHmUSET",
+      "type": "IfcWindow",
+      "name": "EG-Fenster-6",
+      "vertices_count": 104,
+      "triangles_count": 204,
+      "bbox": {
+        "min": [
+          0.12,
+          6.495,
+          0.8
+        ],
+        "max": [
+          0.195,
+          8.495000000000001,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": 23944,
+      "global_id": "0B1RwEzzP3CfME5NR$Vqh5",
+      "type": "IfcWindow",
+      "name": "EG-Fenster-7",
+      "vertices_count": 104,
+      "triangles_count": 204,
+      "bbox": {
+        "min": [
+          0.12,
+          1.205,
+          0.95
+        ],
+        "max": [
+          0.195,
+          3.205,
+          2.15
+        ]
+      }
+    },
+    {
+      "id": 27833,
+      "global_id": "25nJxEpYf8LRDJNkMUVO0m",
+      "type": "IfcWindow",
+      "name": "EG-Fenster-4",
+      "vertices_count": 104,
+      "triangles_count": 204,
+      "bbox": {
+        "min": [
+          1.7899999999999991,
+          0.12,
+          0.95
+        ],
+        "max": [
+          3.789999999999999,
+          0.195,
+          2.15
+        ]
+      }
+    },
+    {
+      "id": 28113,
+      "global_id": "3BFcylCsX74PQAoRAe5fNv",
+      "type": "IfcWindow",
+      "name": "EG-Fenster-5",
+      "vertices_count": 104,
+      "triangles_count": 204,
+      "bbox": {
+        "min": [
+          8.21,
+          0.12,
+          0.8
+        ],
+        "max": [
+          10.21,
+          0.195,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": 31818,
+      "global_id": "13aSY79zb8fP4HApEJ0z_e",
+      "type": "IfcWindow",
+      "name": "EG-Fenster-8",
+      "vertices_count": 104,
+      "triangles_count": 204,
+      "bbox": {
+        "min": [
+          11.805000000000001,
+          6.50239371534,
+          0.8
+        ],
+        "max": [
+          11.88,
+          8.50239371534,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": 32098,
+      "global_id": "2EQh_jhP1B_A_AMuSJc5E0",
+      "type": "IfcWindow",
+      "name": "EG-Fenster-9",
+      "vertices_count": 104,
+      "triangles_count": 204,
+      "bbox": {
+        "min": [
+          11.805000000000001,
+          1.205,
+          0.8
+        ],
+        "max": [
+          11.88,
+          3.205,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": 32829,
+      "global_id": "1TAI4ouKX4Xx4lBDZIu5qM",
+      "type": "IfcWindow",
+      "name": "EG-Fenster-1",
+      "vertices_count": 104,
+      "triangles_count": 204,
+      "bbox": {
+        "min": [
+          1.0499999999999998,
+          9.805000000000001,
+          0.8
+        ],
+        "max": [
+          3.05,
+          9.88,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": 33109,
+      "global_id": "2Q9w7oRXP249jBobEMVqlZ",
+      "type": "IfcWindow",
+      "name": "EG-Fenster-2",
+      "vertices_count": 104,
+      "triangles_count": 204,
+      "bbox": {
+        "min": [
+          4.66,
+          9.805000000000001,
+          0.8
+        ],
+        "max": [
+          6.66,
+          9.88,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": 33389,
+      "global_id": "1DiYqhfzH9xxuJdVHwXCNa",
+      "type": "IfcWindow",
+      "name": "EG-Fenster-3",
+      "vertices_count": 104,
+      "triangles_count": 204,
+      "bbox": {
+        "min": [
+          8.795,
+          9.805000000000001,
+          0.8
+        ],
+        "max": [
+          10.795,
+          9.88,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": 66459,
+      "global_id": "1zOBw0Gej5Wf0QAJfHnOc0",
+      "type": "IfcWindow",
+      "name": "OG-Fenster-2",
+      "vertices_count": 1216,
+      "triangles_count": 2404,
+      "bbox": {
+        "min": [
+          0.095,
+          4.5,
+          3.5
+        ],
+        "max": [
+          0.185,
+          5.5,
+          4.5
+        ]
+      }
+    },
+    {
+      "id": 74280,
+      "global_id": "2ACmFFQhT1Ouf0x4YRUh9m",
+      "type": "IfcWindow",
+      "name": "OG-Fenster-1",
+      "vertices_count": 1216,
+      "triangles_count": 2404,
+      "bbox": {
+        "min": [
+          11.795,
+          4.5,
+          3.5
+        ],
+        "max": [
+          11.885,
+          5.5,
+          4.5
+        ]
+      }
+    },
+    {
+      "id": 389,
+      "global_id": "0KMpiAlnb52RgQuM1CwVfd",
+      "type": "IfcSite",
+      "name": "Gelaende",
+      "vertices_count": 32,
+      "triangles_count": 48,
+      "bbox": {
+        "min": [
+          -3.0,
+          -3.0,
+          -1.0
+        ],
+        "max": [
+          15.0,
+          13.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "id": 20909,
+      "global_id": "347jFE2yX7IhCEIALmupEH",
+      "type": "IfcSpace",
+      "name": "4",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          7.65,
+          4.249999999999999,
+          0.0
+        ],
+        "max": [
+          11.7,
+          9.7,
+          2.5
+        ]
+      }
+    },
+    {
+      "id": 21283,
+      "global_id": "0e_hbkIQ5DMQlIJ$2V3j_m",
+      "type": "IfcSpace",
+      "name": "3",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          4.04,
+          5.989999999999999,
+          0.0
+        ],
+        "max": [
+          7.41,
+          9.7,
+          2.5
+        ]
+      }
+    },
+    {
+      "id": 21640,
+      "global_id": "2RSCzLOBz4FAK$_wE8VckM",
+      "type": "IfcSpace",
+      "name": "2",
+      "vertices_count": 8,
+      "triangles_count": 12,
+      "bbox": {
+        "min": [
+          0.3,
+          5.989999999999999,
+          0.0
+        ],
+        "max": [
+          3.8,
+          9.7,
+          2.5
+        ]
+      }
+    },
+    {
+      "id": 33774,
+      "global_id": "0Lt8gR_E9ESeGH5uY_g9e9",
+      "type": "IfcSpace",
+      "name": "5",
+      "vertices_count": 10,
+      "triangles_count": 16,
+      "bbox": {
+        "min": [
+          4.694999999999999,
+          0.3,
+          0.0
+        ],
+        "max": [
+          11.7,
+          4.01,
+          2.5
+        ]
+      }
+    },
+    {
+      "id": 34191,
+      "global_id": "3$f2p7VyLB7eox67SA_zKE",
+      "type": "IfcSpace",
+      "name": "1",
+      "vertices_count": 20,
+      "triangles_count": 36,
+      "bbox": {
+        "min": [
+          0.3,
+          4.01,
+          0.0
+        ],
+        "max": [
+          7.41,
+          5.75,
+          2.5
+        ]
+      }
+    },
+    {
+      "id": 34763,
+      "global_id": "17JZcMFrf5tOftUTidA0d3",
+      "type": "IfcSpace",
+      "name": "6",
+      "vertices_count": 10,
+      "triangles_count": 16,
+      "bbox": {
+        "min": [
+          0.3,
+          0.2999999999999998,
+          0.0
+        ],
+        "max": [
+          4.695000000019999,
+          4.01,
+          2.5
+        ]
+      }
+    },
+    {
+      "id": 76214,
+      "global_id": "2dQFggKBb1fOc1CqZDIDlx",
+      "type": "IfcSpace",
+      "name": "7",
+      "vertices_count": 10,
+      "triangles_count": 16,
+      "bbox": {
+        "min": [
+          0.29999999999999893,
+          0.29999999999999893,
+          2.7
+        ],
+        "max": [
+          11.7,
+          9.7,
+          6.086751345950001
+        ]
+      }
+    }
+  ]
+}
