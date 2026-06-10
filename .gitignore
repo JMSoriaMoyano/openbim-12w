@@ -27,9 +27,21 @@ reports/*.json
 !reports/.gitkeep
 
 # Outputs de consultas IFC (ad-hoc, regenerables)
-# Excepción: ficheros *_baseline.json son evidencias versionadas (auditoría LOIN E4+)
+# Excepciones (evidencias versionadas):
+#   *_baseline.{json,png}            → auditoría LOIN E4+ / visualizaciones geométricas S5·L+
+#   *_authored.ifc                   → modelos editados por pipeline de autoría S5·L+
+#   *_authored_diff.json             → diff de operaciones de autoría S5·L+
+#   *_compliance_matrix_post.json    → matrices re-auditoría post-autoría S5·L+ (legacy v0.1)
+#   *_compliance_post_*.json         → matrices re-auditoría post-autoría v0.2 multi-variant (S5·X+)
 out/*.json
+out/*.png
+out/*.ifc
 !out/*_baseline.json
+!out/*_baseline.png
+!out/*_authored.ifc
+!out/*_authored_diff.json
+!out/*_compliance_matrix_post.json
+!out/*_compliance_post_*.json
 !out/.gitkeep
 
 # IFC pesados (>50 MB) — opcional, descomenta si aplica
