@@ -1,0 +1,73 @@
+# =============================================================================
+# EIR NEXUM PBSA v0.2 · CONTRATISTA · Variante para contrato Constructor principal
+# =============================================================================
+# Versión: 0.2
+# Variante: contratista
+# Extiende: PBSA_v0.2_comun.yaml (15 chequeos base)
+# Sesión creación: S5·X (10/06/2026) · refactor DF-01
+#
+# Objetivo BIM específico del contrato Contratista principal
+# ----------------------------------------------------------
+# Planificación (4D · time). El contratista debe entregar el modelo con códigos
+# WBS poblados para vinculación con cronograma (Primavera P6, MS Project) y
+# además garantizar el cumplimiento acústico CTE DB-HR como obligación de obra.
+#
+# Total efectivo cuando se audita con --variant contratista:
+#   15 (común) + 3 (propios) = 18 chequeos
+# =============================================================================
+
+meta:
+  eir_version: "0.2"
+  variant: "contratista"
+  contract_type: "Constructor principal"
+  bim_objective_specific: "4D · Planificación (cronograma + WBS)"
+  rationale: >
+    El EIR del contratista exige que cada elemento constructivo tenga un
+    código WBS (Pset_*Common.Reference) que vincule con la actividad del
+    cronograma. Esto permite simulación 4D nativa y control de avance.
+    Adicionalmente, el contratista es responsable del cumplimiento del CTE
+    DB-HR (aislamiento acústico), por lo que la propiedad AcousticRating
+    debe estar poblada al cierre de obra.
+
+# -----------------------------------------------------------------------------
+# Verificaciones estructurales propias (vacío en v0.2 contratista)
+# -----------------------------------------------------------------------------
+structural_checks: []
+
+# -----------------------------------------------------------------------------
+# Verificaciones LOIN propias del contrato Contratista (+3 chequeos)
+# -----------------------------------------------------------------------------
+loin_checks:
+
+  - check_id: "H3.WALL.WBS_Reference"
+    hito: "H3"
+    category: "loin"
+    eir_ref: "§4.2.EST + DF-01.contratista.4D"
+    severity: "obligatorio"
+    rationale: "Código WBS para vinculación con cronograma Primavera/MSP. Permite simulación 4D y control de avance por elemento."
+    ifc_type: "IfcWallStandardCase"
+    pset: "Pset_WallCommon"
+    prop: "Reference"
+    check_fn: "query_missing_property"
+
+  - check_id: "H3.SLAB.WBS_Reference"
+    hito: "H3"
+    category: "loin"
+    eir_ref: "§4.2.EST + DF-01.contratista.4D"
+    severity: "obligatorio"
+    rationale: "Código WBS losas para secuenciación constructiva (forjado planta N antes que muros planta N+1)."
+    ifc_type: "IfcSlab"
+    pset: "Pset_SlabCommon"
+    prop: "Reference"
+    check_fn: "query_missing_property"
+
+  - check_id: "H3.WALL.AcousticRating"
+    hito: "H3"
+    category: "loin"
+    eir_ref: "§4.2.ARQ + CTE DB-HR"
+    severity: "obligatorio"
+    rationale: "CTE DB-HR · obligatorio del constructor para entrega. Verificación de aislamiento acústico medianeras y particiones PBSA."
+    ifc_type: "IfcWallStandardCase"
+    pset: "Pset_WallCommon"
+    prop: "AcousticRating"
+    check_fn: "query_missing_property"

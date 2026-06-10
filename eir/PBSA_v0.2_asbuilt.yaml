@@ -1,0 +1,71 @@
+# =============================================================================
+# EIR NEXUM PBSA v0.2 · AS-BUILT · Variante para entrega final a Operador PBSA
+# =============================================================================
+# Versión: 0.2
+# Variante: asbuilt
+# Extiende: PBSA_v0.2_comun.yaml (15 chequeos base)
+# Sesión creación: S5·X (10/06/2026) · refactor DF-01
+#
+# Objetivo BIM específico del paquete As-built
+# --------------------------------------------
+# LOIN-FM (Facility Management) para operación PBSA. Los datos exigidos aquí
+# son los que el operador necesita ya día 1 para arrancar comercialización,
+# rent-roll y operativa.
+#
+# Total efectivo cuando se audita con --variant asbuilt:
+#   15 (común) + 3 (propios) = 18 chequeos
+# =============================================================================
+
+meta:
+  eir_version: "0.2"
+  variant: "asbuilt"
+  contract_type: "Entrega final · Operador PBSA"
+  bim_objective_specific: "LOIN-FM · Operación PBSA (rent-roll, comercialización, FM)"
+  rationale: >
+    El paquete As-built es el contrato de información que recibe el operador
+    PBSA. Debe permitir cargar el rent-roll inmediatamente (OccupancyType +
+    OccupancyNumber por unidad) y conocer el estado patrimonial del edificio
+    (IsLandmarked) para seguros y permisos operativos.
+
+# -----------------------------------------------------------------------------
+# Verificaciones estructurales propias (vacío en v0.2 asbuilt)
+# -----------------------------------------------------------------------------
+structural_checks: []
+
+# -----------------------------------------------------------------------------
+# Verificaciones LOIN propias del paquete As-built (+3 chequeos LOIN-FM)
+# -----------------------------------------------------------------------------
+loin_checks:
+
+  - check_id: "H4.SPACE.OccupancyType"
+    hito: "H4"
+    category: "loin"
+    eir_ref: "§4.4.FM + DF-01.asbuilt.OP"
+    severity: "obligatorio"
+    rationale: "Tipología PBSA (Studio/Twin/Suite/Common) para rent-roll y mix comercial."
+    ifc_type: "IfcSpace"
+    pset: "Pset_SpaceOccupancyRequirements"
+    prop: "OccupancyType"
+    check_fn: "query_missing_property"
+
+  - check_id: "H4.SPACE.OccupancyNumber"
+    hito: "H4"
+    category: "loin"
+    eir_ref: "§4.4.FM + DF-01.asbuilt.OP"
+    severity: "obligatorio"
+    rationale: "Nº camas / ocupantes por unidad · operación PBSA · cálculo rent-roll y ratios €/cama."
+    ifc_type: "IfcSpace"
+    pset: "Pset_SpaceOccupancyRequirements"
+    prop: "OccupancyNumber"
+    check_fn: "query_missing_property"
+
+  - check_id: "H4.BUILDING.IsLandmarked"
+    hito: "H4"
+    category: "loin"
+    eir_ref: "§4.4.FM + DF-01.asbuilt.OP"
+    severity: "obligatorio"
+    rationale: "Protección patrimonial · afecta seguros, obras de modificación y permisos operativos."
+    ifc_type: "IfcBuilding"
+    pset: "Pset_BuildingCommon"
+    prop: "IsLandmarked"
+    check_fn: "query_missing_property"

@@ -1,0 +1,85 @@
+# =============================================================================
+# EIR NEXUM PBSA v0.2 · DISEÑO · Variante para contrato Diseño (Arquitectura + Ingeniería)
+# =============================================================================
+# Versión: 0.2
+# Variante: diseno
+# Extiende: PBSA_v0.2_comun.yaml (15 chequeos base)
+# Sesión creación: S5·X (10/06/2026) · refactor DF-01
+#
+# Objetivo BIM específico del contrato Diseño
+# -------------------------------------------
+# Control de coste (5D · QTO base). El equipo de diseño debe entregar el
+# modelo con cantidades obligatorias para que el Project Manager pueda
+# ejecutar QTO (Quantity Take-Off) y vincular precios BC3/Presto.
+#
+# Esta variante añade 4 chequeos de Pset Qto_* sobre los elementos críticos
+# para el coste de obra: muros, losas, puertas y ventanas.
+#
+# Total efectivo cuando se audita con --variant diseno:
+#   15 (común) + 4 (propios) = 19 chequeos
+# =============================================================================
+
+meta:
+  eir_version: "0.2"
+  variant: "diseno"
+  contract_type: "Diseño (Arquitectura + Ingeniería)"
+  bim_objective_specific: "5D · Control de coste (QTO base)"
+  rationale: >
+    El EIR de diseño exige cantidades extraíbles del modelo para construir
+    presupuesto base (BC3) y comparativas con proyectos similares. Sin Qto_*
+    poblados, el coste sería estimado manualmente, perdiendo la trazabilidad
+    modelo→coste que la metodología BIM 5D garantiza.
+
+# -----------------------------------------------------------------------------
+# Verificaciones estructurales propias (vacío en v0.2 diseño)
+# -----------------------------------------------------------------------------
+structural_checks: []
+
+# -----------------------------------------------------------------------------
+# Verificaciones LOIN propias del contrato Diseño (+4 chequeos QTO / 5D)
+# -----------------------------------------------------------------------------
+loin_checks:
+
+  - check_id: "H3.WALL.QTO_NetVolume"
+    hito: "H3"
+    category: "loin"
+    eir_ref: "§4.2.ARQ + DF-01.diseno.5D"
+    severity: "obligatorio"
+    rationale: "QTO base para coste m³ muro (BC3/Presto). Cantidad neta excluye huecos."
+    ifc_type: "IfcWallStandardCase"
+    pset: "Qto_WallBaseQuantities"
+    prop: "NetVolume"
+    check_fn: "query_missing_property"
+
+  - check_id: "H3.SLAB.QTO_GrossArea"
+    hito: "H3"
+    category: "loin"
+    eir_ref: "§4.2.ARQ + DF-01.diseno.5D"
+    severity: "obligatorio"
+    rationale: "QTO base para coste m² losa (acabados, falsos techos, pavimentos)."
+    ifc_type: "IfcSlab"
+    pset: "Qto_SlabBaseQuantities"
+    prop: "GrossArea"
+    check_fn: "query_missing_property"
+
+  - check_id: "H3.DOOR.QTO_Area"
+    hito: "H3"
+    category: "loin"
+    eir_ref: "§4.2.ARQ + DF-01.diseno.5D"
+    severity: "obligatorio"
+    rationale: "QTO carpintería para coste unitario por superficie de puerta."
+    ifc_type: "IfcDoor"
+    pset: "Qto_DoorBaseQuantities"
+    prop: "Area"
+    check_fn: "query_missing_property"
+
+  - check_id: "H3.WINDOW.QTO_Area"
+    hito: "H3"
+    category: "loin"
+    eir_ref: "§4.2.ARQ + DF-01.diseno.5D"
+    severity: "obligatorio"
+    rationale: "QTO huecos para coste de carpintería exterior y validación CTE DB-HE."
+    ifc_type: "IfcWindow"
+    pset: "Qto_WindowBaseQuantities"
+    prop: "Area"
+    check_fn: "query_missing_property"

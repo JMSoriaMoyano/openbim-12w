@@ -26,10 +26,22 @@ la función (pass | partial | fail) directamente, sin aplicar umbrales.
 
 Uso CLI
 -------
-    python scripts/s4s_audit_eir.py \
-        --ifc AC20-FZK-Haus.ifc \
-        --eir eir/PBSA_v0.1_obligatorias.yaml \
+Modo legacy (single-file, compatibilidad v0.1):
+    python scripts/s4s_audit_eir.py \\
+        --ifc AC20-FZK-Haus.ifc \\
+        --eir eir/PBSA_v0.1_obligatorias.yaml \\
         --out out/s4s_compliance_matrix_baseline.json
+
+Modo multi-variant (v0.2+, S5·X · DF-01 cerrada):
+    python scripts/s4s_audit_eir.py \\
+        --ifc out/AC20-FZK-Haus_authored.ifc \\
+        --variant diseno \\
+        --out out/AC20-FZK-Haus_compliance_post_diseno.json
+
+El flag --variant compone automáticamente las rutas:
+    eir/PBSA_v<eir-version>_comun.yaml      (base obligatoria)
+  + eir/PBSA_v<eir-version>_<variant>.yaml  (extensión específica)
+La versión por defecto es 0.2 (configurable con --eir-version).
 
 Diseño
 ------
@@ -37,9 +49,12 @@ Diseño
   sin whitelist. Solo las 3 funciones declaradas en CHECK_REGISTRY son invocables.
 - Funciones puras: no muta el YAML, no escribe ficheros aparte del --out.
 - Output JSON-serializable end-to-end, listo para consumir desde docs (Bloque C).
+- Merge contract (--variant): structural_checks y loin_checks se concatenan
+  (común + variante). meta = {**comun.meta, **variant.meta} (variante prevalece).
+  Colisiones de check_id entre común y variante → ValueError (fail-fast).
 
 Autor: José M. Soria (NEXUM)
-Versión: 0.1 (S4·S Bloque B · orquestador inicial Obligatorias)
+Versión: 0.2 (S5·X · DF-01 cerrada · multi-variant support)
 """
 
 from __future__ import annotations
@@ -59,6 +74,14 @@ from s4s_structural_checks import (
     check_mvd_compliance,
 )
 
+# ---------------------------------------------------------------------------
+# Variantes soportadas v0.2 (DF-01 cerrada en S5·X)
+# ---------------------------------------------------------------------------
+
+SUPPORTED_VARIANTS = ("comun", "diseno", "contratista", "asbuilt")
+DEFAULT_EIR_VERSION = "0.2"
+EIR_DIR = Path("eir")
+
 
 # ---------------------------------------------------------------------------
 # Registro de funciones invocables desde YAML (whitelist explícita)
@@ -69,6 +92,120 @@ CHECK_REGISTRY: dict[str, Callable[..., dict[str, Any]]] = {
     "check_mvd_compliance": check_mvd_compliance,
     "check_bsdd_classification": check_bsdd_classification,
 }
+
+
+# ---------------------------------------------------------------------------
+# Carga + merge multi-variant (DF-01 cerrada en S5·X)
+# ---------------------------------------------------------------------------
+
+def _load_yaml(path: Path) -> dict[str, Any]:
+    """Carga un YAML como dict. Falla rápido si la raíz no es mapping."""
+    if not path.exists():
+        raise FileNotFoundError(f"YAML no encontrado: {path}")
+    with path.open("r", encoding="utf-8") as fh:
+        data = yaml.safe_load(fh)
+    if not isinstance(data, dict):
+        raise ValueError(f"YAML no es un mapping en la raíz: {path}")
+    return data
+
+
+def _merge_eir_specs(
+    comun: dict[str, Any],
+    variant_spec: dict[str, Any],
+    variant_name: str,
+) -> dict[str, Any]:
+    """Funde el EIR común con una variante específica.
+
+    Contrato de merge (definido en eir/PBSA_v0.2_comun.yaml):
+      - structural_checks = comun.structural_checks + variant.structural_checks
+      - loin_checks       = comun.loin_checks       + variant.loin_checks
+      - meta              = {**comun.meta, **variant.meta}  (variante prevalece)
+      - check_id duplicado entre comun y variant → ValueError (fail-fast)
+    """
+    merged_meta = {**(comun.get("meta", {}) or {}), **(variant_spec.get("meta", {}) or {})}
+
+    comun_structural = list(comun.get("structural_checks", []) or [])
+    var_structural = list(variant_spec.get("structural_checks", []) or [])
+    comun_loin = list(comun.get("loin_checks", []) or [])
+    var_loin = list(variant_spec.get("loin_checks", []) or [])
+
+    # Fail-fast en colisiones de check_id
+    all_comun_ids = {c["check_id"] for c in comun_structural + comun_loin}
+    all_var_ids = {c["check_id"] for c in var_structural + var_loin}
+    collisions = all_comun_ids & all_var_ids
+    if collisions:
+        raise ValueError(
+            f"Colisión de check_id entre común y variante '{variant_name}': "
+            f"{sorted(collisions)}. El refactor DF-01 prohíbe esta sobreescritura."
+        )
+
+    return {
+        "meta": merged_meta,
+        "structural_checks": comun_structural + var_structural,
+        "loin_checks": comun_loin + var_loin,
+        "_merge_origin": {
+            "comun_structural_count": len(comun_structural),
+            "variant_structural_count": len(var_structural),
+            "comun_loin_count": len(comun_loin),
+            "variant_loin_count": len(var_loin),
+            "variant_name": variant_name,
+        },
+    }
+
+
+def load_eir_spec(
+    eir_path_str: str | None,
+    variant: str | None,
+    eir_version: str,
+    eir_dir: Path = EIR_DIR,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Carga el EIR spec según el modo (legacy single-file o multi-variant).
+
+    Returns
+    -------
+    (eir_spec, source_info)
+        eir_spec : dict mergeado listo para audit_eir()
+        source_info : metadatos de origen (paths usados, modo) para trazabilidad
+    """
+    if variant is not None:
+        if variant not in SUPPORTED_VARIANTS:
+            raise ValueError(
+                f"Variante no soportada: {variant!r}. "
+                f"Permitidas: {SUPPORTED_VARIANTS}"
+            )
+        comun_path = eir_dir / f"PBSA_v{eir_version}_comun.yaml"
+        comun = _load_yaml(comun_path)
+
+        if variant == "comun":
+            # Auditar solo común (útil para verificar P4 vs baseline v0.1)
+            return comun, {
+                "mode": "multi_variant",
+                "variant": "comun",
+                "eir_version": eir_version,
+                "paths_used": [str(comun_path)],
+            }
+
+        variant_path = eir_dir / f"PBSA_v{eir_version}_{variant}.yaml"
+        variant_spec = _load_yaml(variant_path)
+        merged = _merge_eir_specs(comun, variant_spec, variant)
+        return merged, {
+            "mode": "multi_variant",
+            "variant": variant,
+            "eir_version": eir_version,
+            "paths_used": [str(comun_path), str(variant_path)],
+        }
+
+    # Modo legacy: --eir <path>
+    if eir_path_str is None:
+        raise ValueError("Debe pasarse --eir <path> o --variant <name>.")
+    path = Path(eir_path_str)
+    spec = _load_yaml(path)
+    return spec, {
+        "mode": "legacy_single_file",
+        "variant": None,
+        "eir_version": (spec.get("meta", {}) or {}).get("eir_version"),
+        "paths_used": [str(path)],
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -249,18 +386,23 @@ def audit_eir(
     for check in loin:
         results.append(_run_loin(check, model, pass_min, partial_min))
 
+    audit_meta_block = {
+        "ifc_audited": ifc_path_str,
+        "structural_checks_count": len(structural),
+        "loin_checks_count": len(loin),
+        "total_checks": len(results),
+        "thresholds_applied": {
+            "pass_min_pct": pass_min,
+            "partial_min_pct": partial_min,
+        },
+    }
+    # Si el spec viene de merge multi-variant, propagar metadatos de origen
+    if "_merge_origin" in eir_spec:
+        audit_meta_block["merge_origin"] = eir_spec["_merge_origin"]
+
     return {
         "eir_meta": meta,
-        "audit_meta": {
-            "ifc_audited": ifc_path_str,
-            "structural_checks_count": len(structural),
-            "loin_checks_count": len(loin),
-            "total_checks": len(results),
-            "thresholds_applied": {
-                "pass_min_pct": pass_min,
-                "partial_min_pct": partial_min,
-            },
-        },
+        "audit_meta": audit_meta_block,
         "summary": _build_summary(results),
         "results": results,
     }
@@ -272,13 +414,30 @@ def audit_eir(
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="S4·S · Orquestador de auditoría EIR (YAML → matriz JSON)"
+        description=(
+            "S4·S · Orquestador de auditoría EIR (YAML → matriz JSON). "
+            "v0.2 soporta multi-variant (--variant) tras refactor DF-01 (S5·X)."
+        )
     )
     parser.add_argument("--ifc", required=True, help="Ruta o nombre de fichero IFC")
-    parser.add_argument(
+    src = parser.add_mutually_exclusive_group(required=True)
+    src.add_argument(
         "--eir",
-        required=True,
-        help="Ruta al YAML de chequeos EIR (ej. eir/PBSA_v0.1_obligatorias.yaml)",
+        help="[Legacy] Ruta a un YAML EIR single-file (compat v0.1).",
+    )
+    src.add_argument(
+        "--variant",
+        choices=SUPPORTED_VARIANTS,
+        help=(
+            "[v0.2+] Variante a auditar: comun (solo base), diseno (5D/QTO), "
+            "contratista (4D/WBS) o asbuilt (LOIN-FM). Compone rutas "
+            "eir/PBSA_v<X.Y>_comun.yaml + eir/PBSA_v<X.Y>_<variant>.yaml."
+        ),
+    )
+    parser.add_argument(
+        "--eir-version",
+        default=DEFAULT_EIR_VERSION,
+        help=f"Versión EIR a usar con --variant (default: {DEFAULT_EIR_VERSION}).",
     )
     parser.add_argument(
         "--out",
@@ -325,15 +484,15 @@ def _print_console_summary(audit: dict[str, Any]) -> None:
 def main() -> int:
     args = _parse_args()
 
-    # Cargar EIR YAML
-    eir_path = Path(args.eir)
-    if not eir_path.exists():
-        print(f"[ERROR] EIR YAML no encontrado: {eir_path}", file=sys.stderr)
-        return 1
-    with eir_path.open("r", encoding="utf-8") as fh:
-        eir_spec = yaml.safe_load(fh)
-    if not isinstance(eir_spec, dict):
-        print(f"[ERROR] EIR YAML no es un mapping en la raíz: {eir_path}", file=sys.stderr)
+    # Cargar EIR spec (legacy single-file o multi-variant según flags)
+    try:
+        eir_spec, source_info = load_eir_spec(
+            eir_path_str=args.eir,
+            variant=args.variant,
+            eir_version=args.eir_version,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        print(f"[ERROR] {exc}", file=sys.stderr)
         return 1
 
     # Cargar IFC
@@ -350,6 +509,9 @@ def main() -> int:
     except ValueError as exc:
         print(f"[ERROR] {exc}", file=sys.stderr)
         return 2
+
+    # Inyectar source_info en audit_meta para trazabilidad
+    audit["audit_meta"]["eir_source"] = source_info
 
     _emit(audit, args.out)
     _print_console_summary(audit)
