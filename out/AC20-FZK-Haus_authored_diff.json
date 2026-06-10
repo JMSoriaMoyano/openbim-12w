@@ -1,0 +1,98 @@
+{
+  "source_ifc": "C:\\Users\\jmsor\\OpenBIM\\openbim-12w\\models\\samples\\_local\\AC20-FZK-Haus.ifc",
+  "target_ifc": "C:\\Users\\jmsor\\OpenBIM\\openbim-12w\\out\\AC20-FZK-Haus_authored.ifc",
+  "session": "S5·L",
+  "authored_at": "2026-06-08T08:20:43+02:00",
+  "operations": [
+    {
+      "op_id": "OP-001",
+      "type": "set_pset_property",
+      "element": {
+        "id": 17468,
+        "global_id": "1Oms875aH3Wg$9l65H2ZGw",
+        "type": "IfcDoor",
+        "name": "Innentuer-1"
+      },
+      "pset": "Pset_DoorCommon",
+      "property": "FireRating",
+      "value_before": null,
+      "value_after": "EI 30",
+      "eir_ref": "§4.2.ARQ",
+      "rationale": "Pobla FireRating ausente conforme a CTE DB-SI (sector residencial). Corrige hallazgo H3.DOOR.FireRating identificado en E4 (s4s_compliance_matrix_baseline.json)."
+    },
+    {
+      "op_id": "OP-002",
+      "type": "set_pset_property",
+      "element": {
+        "id": 19199,
+        "global_id": "0pGAjlJMP3ifYPATVF5xAR",
+        "type": "IfcDoor",
+        "name": "Innentuer-2"
+      },
+      "pset": "Pset_DoorCommon",
+      "property": "FireRating",
+      "value_before": null,
+      "value_after": "EI 30",
+      "eir_ref": "§4.2.ARQ",
+      "rationale": "Pobla FireRating ausente conforme a CTE DB-SI (sector residencial). Corrige hallazgo H3.DOOR.FireRating identificado en E4 (s4s_compliance_matrix_baseline.json)."
+    },
+    {
+      "op_id": "OP-003",
+      "type": "set_pset_property",
+      "element": {
+        "id": 19504,
+        "global_id": "2qiPPF3FrF8OIqfrKiSUqm",
+        "type": "IfcDoor",
+        "name": "Innentuer-3"
+      },
+      "pset": "Pset_DoorCommon",
+      "property": "FireRating",
+      "value_before": null,
+      "value_after": "EI 30",
+      "eir_ref": "§4.2.ARQ",
+      "rationale": "Pobla FireRating ausente conforme a CTE DB-SI (sector residencial). Corrige hallazgo H3.DOOR.FireRating identificado en E4 (s4s_compliance_matrix_baseline.json)."
+    },
+    {
+      "op_id": "OP-004",
+      "type": "create_element",
+      "element": {
+        "id": 79112,
+        "global_id": "0L32j0y8187h4dEUH2NroA",
+        "type": "IfcWall",
+        "name": "S5L-AUTH-WALL-001"
+      },
+      "geometry": {
+        "primitive": "IfcExtrudedAreaSolid",
+        "profile": "IfcRectangleProfileDef",
+        "length_m": 3.0,
+        "width_m": 0.2,
+        "height_m": 2.7,
+        "location_m": [
+          10.0,
+          5.0,
+          0.0
+        ],
+        "axis": "X"
+      },
+      "container": {
+        "id": 479,
+        "global_id": "2eyxpyOx95m90jmsXLOuR0",
+        "type": "IfcBuildingStorey",
+        "name": "Erdgeschoss"
+      },
+      "counts": {
+        "walls_before": 13,
+        "walls_after": 14
+      },
+      "eir_ref": "§3.2 whitelist geometría",
+      "rationale": "Muro de prueba creado para validar pipeline de autoría geométrica. Cumple whitelist §3.2 (IfcWall con IfcExtrudedAreaSolid sobre IfcRectangleProfileDef)."
+    }
+  ],
+  "summary": {
+    "ops_total": 4,
+    "ops_by_type": {
+      "set_pset_property": 3,
+      "create_element": 1
+    }
+  }
+}
