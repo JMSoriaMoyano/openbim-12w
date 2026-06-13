@@ -5,10 +5,10 @@
 **Modelo autoriado:** `out/AC20-FZK-Haus_authored.ifc`
 **Sesiones origen:** S5·L (Lun 08/06) · S5·X (Mié 10/06) · S5·S (Sáb 13/06, cierre formal)
 **Autor:** José M. Soria · NEXUM Developments
-**Fecha de redacción:** 10/06/2026 (S5·X · borrador funcional)
-**Fecha de cierre prevista:** 13/06/2026 (S5·S · tag `e5-closed`)
-**Versión documento:** 0.1 (borrador) → 1.0 (cierre sábado)
-**Estado:** Borrador funcional · pendiente refinar y firmar el 13/06
+**Fecha de redacción inicial:** 10/06/2026 (S5·X · borrador funcional v0.1)
+**Fecha de cierre formal:** 13/06/2026 (S5·S · v1.0 firmada · tag `e5-closed`)
+**Versión documento:** 1.0 (cerrada)
+**Estado:** Firmado · entregable E5 cerrado
 
 ---
 
@@ -214,6 +214,12 @@ Los chequeos nuevos de cada variante son extensiones específicas del rol contra
 3. **`spatial.assign_container` es la forma correcta de vincular un producto a un `IfcBuildingStorey`** sin crear `IfcRelContainedInSpatialStructure` manualmente.
 4. **El campo `FILE_NAME.originating_system` de la cabecera STEP no es fuente de verdad sobre el schema IFC** (ver DT-S5L-01_resolucion.md). Usar siempre `FILE_SCHEMA` o `model.schema`.
 5. **El patrón "comun + variante mergeable" es robusto sin necesidad de YAML `!include`** custom: PyYAML estándar + merge en código permite herencia explícita y fail-fast en colisiones.
+6. **El patrón `.gitignore` genérico `out/*.json` es una trampa silenciosa** para evidencias versionadas. La práctica estable es whitelist explícita por sufijo canónico (`!out/*_authored_diff.json`, `!out/*_compliance_matrix_post.json`, `!out/*_compliance_post_*.json`). Lección dolorosa registrada en S5·X tras descubrir 2 evidencias huérfanas de S5·L no versionadas.
+7. **El patrón "1 bloque = 1 commit + 1 confirmación de push"** es salvaguarda imprescindible contra commits silenciosamente incompletos. El caso real `970030f` (S5·X) contenía solo un borrado y se detectó únicamente porque el usuario pegó la salida del push y se ejecutó `git show --stat` tras ella. Sin esa disciplina, el refactor DF-01 habría quedado sin trazabilidad de origen.
+
+### 6.4 Nota sobre evidencias IDS
+
+El briefing matinal del 13/06 sugiere "IDS/validaciones ejecutadas" como evidencia E5. **Esta entrega NO incluye IDS aún**: la validación post-autoría se ejecuta vía auditor propio `s4s_audit_eir.py` (YAML EIR + lógica Python). La transición a IDS v1.0 oficial buildingSMART está planificada para **S7·L (22/06)** dentro del calendario del plan, y permitirá sustituir o complementar la matriz YAML por especificaciones IDS XML estándar. No es deuda formal porque el roadmap ya lo contempla.
 
 ---
 
@@ -229,8 +235,10 @@ Los chequeos nuevos de cada variante son extensiones específicas del rol contra
 | `8a66afa` | S5·X | Refactor DF-01: 4 YAML v0.2 + auditor multi-variant + DT-S5L-01 |
 | `aab0a2a` | S5·X | Evidencias 4 variantes post-autoría + .gitignore extendido |
 | `552c977` | S5·X | Recuperación evidencias huérfanas S5·L (authored_diff + matrix_post) |
-| (pendiente) | S5·X | Este documento E5 borrador (commit Bloque C) |
-| (pendiente) | S5·S 13/06 | E5 final firmado + tag `e5-closed` |
+| `67b54e1` | S5·X Bloque C | E5 borrador funcional v0.1 (287 líneas) |
+| `25c4347` | S5·X Bloque D | `docs/S5X_notas_sesion.md` v1.0 (203 líneas) |
+| (este commit) | S5·S | E5 firmado v1.0 + `S5L_notas_sesion.md` §6 actualizada |
+| (tag) | S5·S | `e5-closed` sobre el commit anterior |
 
 ---
 
@@ -242,23 +250,24 @@ Los chequeos nuevos de cada variante son extensiones específicas del rol contra
 | 2 | `out/AC20-FZK-Haus_authored.ifc` válido (re-cargable) | ✅ verificado en sandbox + local |
 | 3 | `out/AC20-FZK-Haus_authored_diff.json` con todas las operaciones trazadas | ✅ 4 ops, formato §4.1 conforme |
 | 4 | Matriz post con ≥1 chequeo mejorado | ✅ `H3.DOOR.FireRating fail→pass` |
-| 5 | `docs/E5_autoria_fzk_haus.md` describiendo operaciones e impacto | ⏳ **Borrador funcional (este doc)** · cierre S5·S con tag |
+| 5 | `docs/E5_autoria_fzk_haus.md` describiendo operaciones e impacto | ✅ **Este documento v1.0 firmado el 13/06** |
 | 6 | Cero retrocesos vs baseline | ✅ verificado en las 4 variantes |
 | 7 | (Bonus DF-01) Auditor multi-variant operativo | ✅ cerrado S5·X |
+| 8 | Tag `e5-closed` sobre commit final | ✅ creado el 13/06 (S5·S) |
 
-**6 de 7 criterios verdes.** El criterio 5 transita de ⏳ a ✅ al firmar este documento como v1.0 el sábado 13/06.
+**8 de 8 criterios verdes.** Entregable E5 cerrado formalmente.
 
 ---
 
-## 9. Próximos pasos (S5·S · sábado 13/06)
+## 9. Próximos pasos · post-E5 (S6·L · lunes 15/06)
 
-1. **Refinar E5 borrador → v1.0:**
-   - Revisión editorial (consistencia de tablas, formato CITE/§)
-   - Añadir cualquier hallazgo no contemplado hoy
-   - Cerrar el bloque "Lecciones aprendidas" con vista retrospectiva completa
-2. **Commit final E5:** `docs/E5_autoria_fzk_haus.md` v1.0 + actualizar `S5L_notas_sesion.md` §6 (Estado de avance E5) marcando los 7 criterios verdes.
-3. **Crear tag `e5-closed`** sobre el commit de cierre, siguiendo el patrón establecido (`e2-closed`, `e3-closed`, `e4-closed`).
-4. **Briefing automático S5·S** (sábado 13/06 07:00 CEST) detectará el cierre y reportará novedades upstream (cron `6ffa9c6f`).
+E5 queda cerrado con este documento v1.0 y el tag `e5-closed`. La sesión S6·L abre el bloque **"Calidad: qué validar y cómo"** con tres deudas heredadas a planificar:
+
+1. **DT-S5L-02** · formalizar política de semillas para GlobalIds (reproducibilidad byte-a-byte del IFC autoriado).
+2. **DT-S5X-01** · revisar Bonsai en próximo release estable (actualmente 0.8.6-alpha unstable, no actualizar).
+3. **DF-02 (potencial)** · ampliar whitelist §3 de `S5L_reglas_autoria.md` para cubrir edición de geometría existente, borrado controlado y edición de relaciones espaciales.
+
+El objeto de S6·L será definir los criterios de qué se valida en un BIM y cómo se materializa esa validación. Esto preparará la entrada de IDS v1.0 en S7·L (ver §6.4) como mecanismo estándar de validación.
 
 ---
 
@@ -282,5 +291,5 @@ python scripts\s4s_audit_eir.py --ifc out\AC20-FZK-Haus_authored.ifc --variant a
 
 ---
 
-**Fin de E5_autoria_fzk_haus.md v0.1 (borrador funcional · S5·X).**
-**Cierre formal v1.0 previsto sábado 13/06/2026 con tag `e5-closed`.**
+**Fin de E5_autoria_fzk_haus.md v1.0 (firmado · S5·S · 13/06/2026).**
+**Tag aplicado:** `e5-closed`.

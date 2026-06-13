@@ -6,7 +6,7 @@
 **Tema:** Primer ciclo de autoría real sobre IFC + congelación EIR v0.1 + reglas vinculantes
 **Duración estimada:** ~3.5 h (5 bloques: A, B, C, D, E)
 **Versión documento:** 1.0
-**Estado E5:** Pendiente cierre formal sábado 13/06/2026 (sin tag en esta sesión)
+**Estado E5:** Cerrado el 13/06/2026 (S5·S) con tag `e5-closed` · ver `docs/E5_autoria_fzk_haus.md` v1.0
 
 ---
 
@@ -159,20 +159,21 @@
 
 ---
 
-## 6. Estado de avance hacia E5 (sábado 13/06)
+## 6. Estado de avance hacia E5 (cierre 13/06)
 
-Criterios de aceptación E5 según `S5L_reglas_autoria.md §6`:
+Criterios de aceptación E5 según `S5L_reglas_autoria.md §6` (estado final tras S5·S):
 
-| # | Criterio | Estado tras S5·L |
+| # | Criterio | Estado final |
 |---|---|---|
 | 1 | `scripts/s5l_ifc_authoring.py` con ≥2 funciones autorizadas | ✅ 4 funciones (1 propiedad + 1 geometría + 2 utilitarias) |
 | 2 | `out/AC20-FZK-Haus_authored.ifc` válido (re-cargable) | ✅ verificado |
 | 3 | `out/AC20-FZK-Haus_authored_diff.json` con todas las operaciones trazadas | ✅ 4 ops, formato §4.1 |
 | 4 | `out/AC20-FZK-Haus_compliance_matrix_post.json` con ≥1 chequeo mejorado | ✅ `H3.DOOR.FireRating fail→pass` |
-| 5 | `docs/E5_autoria_fzk_haus.md` describiendo operaciones e impacto | ⏳ Pendiente — redactar en S5·X o S5·S |
-| 6 | Cero retrocesos vs baseline | ✅ verificado |
+| 5 | `docs/E5_autoria_fzk_haus.md` describiendo operaciones e impacto | ✅ v1.0 firmada el 13/06 (S5·S) |
+| 6 | Cero retrocesos vs baseline | ✅ verificado (en las 4 variantes EIR v0.2) |
+| 7 | Tag `e5-closed` sobre commit final | ✅ creado el 13/06 (S5·S) |
 
-**Pendiente único:** `docs/E5_autoria_fzk_haus.md` (entregable síntesis para presentación externa, equivalente a `E4_auditoria_loin_fzk_haus.md` pero centrado en autoría). Target: S5·X (10/06) o S5·S (13/06 cierre formal con tag `e5-closed`).
+**7/7 criterios verdes.** E5 cerrado formalmente el sábado 13/06/2026 con el documento `docs/E5_autoria_fzk_haus.md` v1.0 y el tag `e5-closed`. El refactor DF-01 (EIR multi-variant) cerró en S5·X como criterio bonus.
 
 ---
 
