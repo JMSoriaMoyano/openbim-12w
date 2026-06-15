@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ids:ids xmlns:ids="http://standards.buildingsmart.org/IDS"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://standards.buildingsmart.org/IDS
+                             http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+
+  <ids:info>
+    <ids:title>PBSA v0.2 · Prototipo IDS S6·L</ids:title>
+    <ids:copyright>NEXUM Developments</ids:copyright>
+    <ids:version>0.1.0</ids:version>
+    <ids:description>
+      Prototipo mínimo de Information Delivery Specification para el EIR PBSA v0.2.
+      Plan formativo OpenBIM 12w · sesión S6·L (15/06/2026).
+      Cubre 2 reglas representativas (C-P-01 y C-P-03) de la checklist E6
+      como demostración del patrón IDS antes del refactor completo en S7·L.
+      Marco normativo interno: docs/S6L_marco_calidad.md v1.0.
+      Checklist objetivo:      docs/E6_checklist_calidad.md v1.0.
+    </ids:description>
+    <ids:author>jmsoria@ciccp.es</ids:author>
+    <ids:date>2026-06-15</ids:date>
+    <ids:purpose>Prototipo formativo · NO contractual</ids:purpose>
+    <ids:milestone>S6·L Bloque E · prototipo IDS</ids:milestone>
+  </ids:info>
+
+  <ids:specifications>
+
+    <!--
+      ================================================================
+      Regla 1 · C-P-01 · Todos los IfcWall deben tener Pset_WallCommon
+      ================================================================
+      Dimensión:        D2 Propiedades
+      Capa ISO 19650-2: no gráfica
+      Variantes:        todas (común · diseño · contratista · asbuilt)
+      Backend:          ids_xml (migrable nativamente)
+      Cardinalidad:     applicability minOccurs=1 maxOccurs=unbounded
+                        (todos los muros del modelo)
+    -->
+    <ids:specification name="C-P-01 · IfcWall con Pset_WallCommon"
+                       ifcVersion="IFC4"
+                       identifier="C-P-01"
+                       description="Todo IfcWall debe declarar el Pset_WallCommon (Pset obligatorio según IFC4)."
+                       instructions="Si falla: añadir Pset_WallCommon al muro en la herramienta de autoría antes de re-exportar."
+                       minOccurs="1"
+                       maxOccurs="unbounded">
+
+      <ids:applicability minOccurs="1" maxOccurs="unbounded">
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCWALL</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+      </ids:applicability>
+
+      <ids:requirements>
+        <ids:property dataType="IFCLABEL"
+                      cardinality="required">
+          <ids:propertySet>
+            <ids:simpleValue>Pset_WallCommon</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>Reference</ids:simpleValue>
+          </ids:baseName>
+        </ids:property>
+      </ids:requirements>
+
+    </ids:specification>
+
+
+    <!--
+      ================================================================
+      Regla 2 · C-P-03 · IfcDoor.Pset_DoorCommon.FireRating definido
+      ================================================================
+      Dimensión:        D2 Propiedades
+      Capa ISO 19650-2: no gráfica
+      Variantes:        todas
+      Backend:          ids_xml (migrable nativamente)
+      Cardinalidad:     applicability minOccurs=1 maxOccurs=unbounded
+                        (todas las puertas del modelo)
+      Nota histórica:   este check pasó de 40% a 100% en autoría S5·L
+                        (entregable E5 · ver docs/E5_autoria_fzk_haus.md).
+    -->
+    <ids:specification name="C-P-03 · IfcDoor con FireRating en Pset_DoorCommon"
+                       ifcVersion="IFC4"
+                       identifier="C-P-03"
+                       description="Toda IfcDoor debe declarar Pset_DoorCommon.FireRating como IfcLabel con valor no vacío."
+                       instructions="Si falla: editar la puerta en la herramienta de autoría y rellenar FireRating (ej. EI60, EI90, EI120, etc.)."
+                       minOccurs="1"
+                       maxOccurs="unbounded">
+
+      <ids:applicability minOccurs="1" maxOccurs="unbounded">
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCDOOR</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+      </ids:applicability>
+
+      <ids:requirements>
+        <ids:property dataType="IFCLABEL"
+                      cardinality="required">
+          <ids:propertySet>
+            <ids:simpleValue>Pset_DoorCommon</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>FireRating</ids:simpleValue>
+          </ids:baseName>
+        </ids:property>
+      </ids:requirements>
+
+    </ids:specification>
+
+  </ids:specifications>
+</ids:ids>
