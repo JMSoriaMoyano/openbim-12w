@@ -1,0 +1,40 @@
+# =============================================================================
+# openbim-12w · Atributos Git para normalización cross-platform
+# =============================================================================
+# Introducido: S9·L (12/07/2026) tras detectar SHA-256 divergente entre
+# Linux (sandbox) y Windows (local) por conversión CRLF/LF.
+#
+# Regla general: los modelos IFC son texto plano STEP pero deben tratarse
+# como binarios para preservar SHA-256 estable entre plataformas.
+# =============================================================================
+
+# Modelos IFC como binarios (no convertir finales de línea)
+*.ifc binary
+
+# Formatos IFC alternativos
+*.ifczip binary
+*.ifcxml binary
+
+# BCF como binarios (son ZIP)
+*.bcf binary
+*.bcfzip binary
+
+# Modelos 3D auxiliares
+*.blend binary
+*.blend1 binary
+*.blend2 binary
+*.skp binary
+*.dwg binary
+*.rvt binary
+
+# IDS es XML: text con LF forzado (mantiene reproducibilidad de hashes IDS)
+*.ids text eol=lf
+
+# Ficheros de código y config: LF (evita ping-pong CRLF↔LF)
+*.py text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.gitignore text eol=lf

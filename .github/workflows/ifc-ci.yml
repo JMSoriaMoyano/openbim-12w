@@ -1,47 +1,106 @@
-name: IFC + IDS validation
+name: IFC + IDS validation (quality_engine 0.2.x)
 
-# Activa en S9. Hasta entonces, el workflow existe pero no hay IDS para validar.
+# Productivo desde S9·L (12/07/2026). Sustituye al skeleton S6·L.
+#
+# Objetivos:
+#   1. Instalar el entorno (ifcopenshell, ifctester) con versiones fijadas.
+#   2. Ejecutar el smoke test del entorno.
+#   3. Ejecutar el test suite del motor (contrato canónico S6·X).
+#   4. Ejecutar el CLI del quality_engine contra FZK-Haus authored en
+#      las 4 variantes EIR y adjuntar los JSON como artefactos.
+#
+# NOTA sobre umbrales:
+#   NO se activa --fail-under en variantes de FZK-Haus (el modelo
+#   académico produce fails esperados, ver docs/E6_auditoria_calidad_fzk_haus.md).
+#   Cuando se introduzcan modelos PBSA reales (S11/S12), añadir un job
+#   `validate_final_project` con `--fail-under 95` explícito.
+
 on:
   push:
+    branches: [main]
     paths:
-      - 'models/**.ifc'
-      - 'ids/**.ids'
+      - 'quality_engine/**'
+      - 'eir/**'
+      - 'ids/**'
       - 'scripts/**'
+      - 'tests/**'
+      - 'requirements.txt'
+      - '.github/workflows/ifc-ci.yml'
   pull_request:
+    branches: [main]
     paths:
-      - 'models/**.ifc'
-      - 'ids/**.ids'
+      - 'quality_engine/**'
+      - 'eir/**'
+      - 'ids/**'
       - 'scripts/**'
+      - 'tests/**'
+      - 'requirements.txt'
+      - '.github/workflows/ifc-ci.yml'
+  workflow_dispatch:
 
 jobs:
   validate:
+    name: quality_engine · audit FZK-Haus (4 variantes)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Setup Miniconda
-        uses: conda-incubator/setup-miniconda@v3
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          channels: ifcopenshell,conda-forge
-          channel-priority: strict
+          cache: 'pip'
 
-      - name: Install IfcOpenShell
-        shell: bash -el {0}
+      - name: Install dependencies (fixed versions)
         run: |
-          conda install -y -c ifcopenshell -c conda-forge ifcopenshell
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pytest
 
-      - name: Smoke test
-        shell: bash -el {0}
+      - name: Smoke test del entorno
         run: python scripts/00_smoke_test.py
 
-      # En S9 se activa este paso
-      # - name: Validate IFC vs IDS
-      #   shell: bash -el {0}
-      #   run: python scripts/E8_validate.py models/FINAL_proyecto.ifc ids/FINAL.ids
-      #
-      # - uses: actions/upload-artifact@v4
-      #   with:
-      #     name: validation-report
-      #     path: reports/*.html
+      - name: Pytest · contrato canónico del motor
+        run: python -m pytest tests/ -v
+
+      - name: Audit · variante común
+        run: |
+          mkdir -p reports/ci
+          python -m quality_engine.cli \
+            --model out/AC20-FZK-Haus_authored.ifc \
+            --variant comun \
+            --eir-version 0.2 \
+            --out reports/ci/audit_comun.json
+
+      - name: Audit · variante diseño
+        run: |
+          python -m quality_engine.cli \
+            --model out/AC20-FZK-Haus_authored.ifc \
+            --variant diseno \
+            --eir-version 0.2 \
+            --out reports/ci/audit_diseno.json
+
+      - name: Audit · variante contratista
+        run: |
+          python -m quality_engine.cli \
+            --model out/AC20-FZK-Haus_authored.ifc \
+            --variant contratista \
+            --eir-version 0.2 \
+            --out reports/ci/audit_contratista.json
+
+      - name: Audit · variante as-built
+        run: |
+          python -m quality_engine.cli \
+            --model out/AC20-FZK-Haus_authored.ifc \
+            --variant asbuilt \
+            --eir-version 0.2 \
+            --out reports/ci/audit_asbuilt.json
+
+      - name: Upload audit artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-engine-audit-${{ github.sha }}
+          path: reports/ci/*.json
+          retention-days: 30

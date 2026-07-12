@@ -1,14 +1,19 @@
 # =============================================================================
-# openbim-12w · Requirements mínimos
+# openbim-12w · Requirements con versiones fijadas
 # =============================================================================
 # Sesión origen: S5·L Bloque A (housekeeping)
-# Última revisión: 2026-06-17 (S6·X · backend IDS)
+# Última revisión: 2026-07-12 (S9·L · fijación de versiones para CI)
 #
-# Política de versiones:
-#   - ifcopenshell : versión flexible (proyecto educativo; aceptamos rangos)
-#   - ifctester    : añadido en S6·X para validación IDS 1.0 oficial
-#   - pyyaml       : >= 6.0 para soporte robusto safe_load
-#   - matplotlib   : >= 3.7 para API estable (introducida S5·L Bloque B)
+# Política de versiones (revisada S9·L):
+#   Antes de S9·L usábamos rangos abiertos (>=). El CI de S9·L exige
+#   reproducibilidad estricta, por lo que fijamos versiones concretas
+#   con ~= (compatible release) para permitir sólo parches, no minors.
+#
+#   Referencia: PEP 440 · https://peps.python.org/pep-0440/#compatible-release
+#
+# Actualización de versiones:
+#   Cambiar aquí, ejecutar `pytest tests/` para validar contrato canónico,
+#   commitear con mensaje explícito indicando bump.
 #
 # Instalación:
 #   pip install -r requirements.txt
@@ -17,7 +22,19 @@
 #   python -c "import ifcopenshell, ifctester, yaml, matplotlib; print('OK')"
 # =============================================================================
 
-ifcopenshell>=0.7
-ifctester>=0.8
-pyyaml>=6.0
-matplotlib>=3.7
+# Motor IFC (schema IFC4, geometry, autoría)
+ifcopenshell~=0.8.5
+
+# Validación IDS 1.0 (bSI oficial)
+ifctester~=0.8.5
+
+# Config: EIRs YAML
+pyyaml~=6.0
+
+# Visualización (S5·L geometría, futuros dashboards)
+matplotlib~=3.10.9
+
+# NOTA S9·L: Bonsai NO se fija aquí (ver DT-S5X-01).
+# Los builds alpha diarios de Bonsai (2607071900, 2607080916, etc.)
+# son inestables. Cuando se necesite Bonsai en CI (S11·L), se
+# instalará desde una release estable explícita, no vía requirements.
