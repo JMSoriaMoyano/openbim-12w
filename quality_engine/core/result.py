@@ -56,5 +56,21 @@ class ResultadoCheck:
     eir_source: str = ""
 
     def to_dict(self) -> dict[str, Any]:
-        """Serializa a dict para matriz JSON. STUB · implementar en S6·X."""
-        raise NotImplementedError("S6·X · serializar a dict JSON")
+        """Serializa a dict para matriz JSON.
+
+        El orden de claves está fijado para que la matriz sea diff-friendly
+        entre ejecuciones (estable bajo git).
+        """
+        return {
+            "check_id": self.check_id,
+            "dimension": self.dimension,
+            "layer": self.layer,
+            "status": self.status,
+            "backend": self.backend,
+            "score": self.score,
+            "threshold_pass": self.threshold_pass,
+            "threshold_partial": self.threshold_partial,
+            "message": self.message,
+            "eir_source": self.eir_source,
+            "evidence": self.evidence,
+        }

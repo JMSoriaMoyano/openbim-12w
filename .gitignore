@@ -50,3 +50,6 @@ out/*.ifc
 # Blender
 *.blend1
 *.blend2
+
+# Modelos locales de prueba (no versionar)
+models/samples/_local/

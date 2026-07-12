@@ -240,3 +240,152 @@ loin_checks:
     pset: "Pset_BuildingCommon"
     prop: "NumberOfStoreys"
     check_fn: "query_missing_property"
+
+# =============================================================================
+# Quality Engine v2 checks (S6·X · nuevo motor modular)
+# =============================================================================
+# Sección NUEVA introducida en S6·X. Convive con structural_checks/loin_checks
+# (legacy s4s_audit_eir.py) sin conflicto.
+#
+# Diferencias vs legacy:
+#   - check_id sigue convención C-<DIM>-<NN> del checklist E6.
+#   - Cada check declara explícitamente: dimension (D1-D8), layer (grafica/
+#     no_grafica/documentacion), backend (yaml_python | ids_xml), check_fn
+#     (Python dotted path o referencia IDS), params.
+#   - Variantes (_diseno, _contratista, _asbuilt) pueden añadir bloques propios
+#     bajo la misma clave 'quality_engine_checks:' y se mergean por concatenación
+#     (mismo contrato que structural_checks/loin_checks).
+#   - check_id colisionado entre comun y variant → CheckIdCollisionError.
+#
+# Las funciones referenciadas en check_fn están en quality_engine.rules.d*_*
+# y se invocan vía whitelist explícita en quality_engine.core.runner.
+# =============================================================================
+
+quality_engine_checks:
+
+  # ---------------------------------------------------------------------------
+  # D1 · Modelo (integridad estructural · capa no gráfica)
+  # ---------------------------------------------------------------------------
+
+  - check_id: "C-M-01"
+    dimension: "D1"
+    layer: "no_grafica"
+    hito: "H3"
+    severity: "obligatorio"
+    backend: "yaml_python"
+    check_fn: "quality_engine.rules.d1_modelo:check_file_schema_ifc4"
+    params:
+      expected_schema: "IFC4"
+    eir_ref: "§3.1"
+    rationale: "FILE_SCHEMA en cabecera STEP debe ser IFC4 (no IFC2X3). Es la base de interoperabilidad y precondición para todos los Psets canónicos."
+
+  - check_id: "C-M-02"
+    dimension: "D1"
+    layer: "no_grafica"
+    hito: "H3"
+    severity: "obligatorio"
+    backend: "yaml_python"
+    check_fn: "quality_engine.rules.d1_modelo:check_model_schema_coherence"
+    params:
+      expected_schema: "IFC4"
+    eir_ref: "§3.1"
+    rationale: "model.schema reportado por ifcopenshell debe coincidir con FILE_SCHEMA declarado. Detecta ficheros corruptos o reescritos con metadata incoherente."
+
+  # ---------------------------------------------------------------------------
+  # D3 · Relaciones (capa no gráfica)
+  # ---------------------------------------------------------------------------
+
+  - check_id: "C-R-01"
+    dimension: "D3"
+    layer: "no_grafica"
+    hito: "H3"
+    severity: "obligatorio"
+    backend: "yaml_python"
+    check_fn: "quality_engine.rules.d3_relaciones:check_containment_to_storey"
+    params:
+      target_types:
+        - "IfcWall"
+        - "IfcSlab"
+        - "IfcDoor"
+        - "IfcWindow"
+        - "IfcColumn"
+        - "IfcBeam"
+    eir_ref: "§3.3"
+    rationale: "Todo IfcProduct físico debe estar contenido en un IfcBuildingStorey vía IfcRelContainedInSpatialStructure. Sin containment no es navegable en visores ni FM."
+
+  - check_id: "C-R-02"
+    dimension: "D3"
+    layer: "no_grafica"
+    hito: "H3"
+    severity: "obligatorio"
+    backend: "yaml_python"
+    check_fn: "quality_engine.rules.d3_relaciones:check_spatial_hierarchy"
+    params: {}
+    eir_ref: "§3.3"
+    rationale: "Jerarquía IfcProject → IfcSite → IfcBuilding → IfcBuildingStorey vía IfcRelAggregates debe ser completa. Ruptura impide navegación CDE y federación."
+
+  - check_id: "C-R-03"
+    dimension: "D3"
+    layer: "no_grafica"
+    hito: "H3"
+    severity: "obligatorio"
+    backend: "yaml_python"
+    check_fn: "quality_engine.rules.d3_relaciones:check_no_orphans"
+    params:
+      target_types:
+        - "IfcWall"
+        - "IfcSlab"
+        - "IfcDoor"
+        - "IfcWindow"
+        - "IfcColumn"
+        - "IfcBeam"
+    eir_ref: "§3.3"
+    rationale: "Productos físicos sin containment ni agregación son huérfanos: no aparecen en ningún storey, invisibles en visores y excluidos de QTO/FM."
+
+  # ---------------------------------------------------------------------------
+  # D5 · Unidades (capa no gráfica)
+  # ---------------------------------------------------------------------------
+
+  - check_id: "C-U-01"
+    dimension: "D5"
+    layer: "no_grafica"
+    hito: "H3"
+    severity: "obligatorio"
+    backend: "yaml_python"
+    check_fn: "quality_engine.rules.d5_unidades:check_unit_assignment_present"
+    params: {}
+    eir_ref: "§3.5"
+    rationale: "El modelo debe declarar al menos un IfcUnitAssignment para que las propiedades numéricas sean interpretables. Sin él, todo valor numérico es ambiguo."
+
+  - check_id: "C-U-02"
+    dimension: "D5"
+    layer: "no_grafica"
+    hito: "H3"
+    severity: "obligatorio"
+    backend: "yaml_python"
+    check_fn: "quality_engine.rules.d5_unidades:check_si_metric_system"
+    params:
+      required_units:
+        LENGTHUNIT: "METRE"
+        AREAUNIT: "SQUARE_METRE"
+        VOLUMEUNIT: "CUBIC_METRE"
+    eir_ref: "§3.5"
+    rationale: "Sistema métrico SI obligatorio en proyecto español. Detecta modelos importados de regiones imperiales o con configuración inconsistente entre tipos."
+
+  - check_id: "C-U-03"
+    dimension: "D5"
+    layer: "no_grafica"
+    hito: "H3"
+    severity: "recomendado"
+    backend: "yaml_python"
+    check_fn: "quality_engine.rules.d5_unidades:sniff_length_coherence"
+    params:
+      sample_types:
+        - "IfcWall"
+        - "IfcSlab"
+      expected_range_m:
+        min: 0.05
+        max: 100.0
+      sample_size: 20
+    eir_ref: "§3.5"
+    rationale: "Sniff numérico: muestrea longitudes/dimensiones de muros y losas. Si la mediana cae fuera del rango plausible (5cm-100m) es señal de unidades mal interpretadas (p.ej. mm declarado como m, factor 1000)."

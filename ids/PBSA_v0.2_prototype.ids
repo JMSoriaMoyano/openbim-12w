@@ -6,55 +6,157 @@
                              http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
 
   <ids:info>
-    <ids:title>PBSA v0.2 · Prototipo IDS S6·L</ids:title>
+    <ids:title>PBSA v0.2 · Prototipo IDS S6·X (v2)</ids:title>
     <ids:copyright>NEXUM Developments</ids:copyright>
-    <ids:version>0.1.0</ids:version>
+    <ids:version>0.2.0</ids:version>
     <ids:description>
-      Prototipo mínimo de Information Delivery Specification para el EIR PBSA v0.2.
-      Plan formativo OpenBIM 12w · sesión S6·L (15/06/2026).
-      Cubre 2 reglas representativas (C-P-01 y C-P-03) de la checklist E6
-      como demostración del patrón IDS antes del refactor completo en S7·L.
-      Marco normativo interno: docs/S6L_marco_calidad.md v1.0.
-      Checklist objetivo:      docs/E6_checklist_calidad.md v1.0.
+Information Delivery Specification para el EIR PBSA v0.2. Iteración S6·X
+(17/06/2026). Reescritura completa del prototipo S6·L tras detectar bugs de
+schema (minOccurs/maxOccurs en specification/applicability no son válidos en
+IDS 1.0). Esta versión amplía la cobertura de 2 a 7 reglas:
+- 4 reglas D1 Modelo: cardinalidad de IfcProject/Site/Building/Storey.
+- 3 reglas D2 Propiedades: Psets obligatorios en muros, puertas y losas.
+Pendiente para S7·L: extender a C-P-04 (Window), C-P-05 (Column), C-Q-01
+(Qto_WallBaseQuantities) y C-Q-02 (IfcCostItem) cuando el modelo authored
+incorpore esos datos.
+Marco normativo interno: docs/S6L_marco_calidad.md v1.0 (§4.2 migración IDS).
+Checklist objetivo:      docs/E6_checklist_calidad.md v1.0.
+Cierre parcial DF-05.
     </ids:description>
     <ids:author>jmsoria@ciccp.es</ids:author>
-    <ids:date>2026-06-15</ids:date>
-    <ids:purpose>Prototipo formativo · NO contractual</ids:purpose>
-    <ids:milestone>S6·L Bloque E · prototipo IDS</ids:milestone>
+    <ids:date>2026-06-17</ids:date>
+    <ids:purpose>Prototipo formativo · validación E6 · NO contractual</ids:purpose>
+    <ids:milestone>S6·X Bloque D · IDS v2 reescrito</ids:milestone>
   </ids:info>
 
   <ids:specifications>
 
     <!--
       ================================================================
-      Regla 1 · C-P-01 · Todos los IfcWall deben tener Pset_WallCommon
+      D1 · MODELO · Cardinalidad de entidades espaciales
       ================================================================
-      Dimensión:        D2 Propiedades
-      Capa ISO 19650-2: no gráfica
-      Variantes:        todas (común · diseño · contratista · asbuilt)
-      Backend:          ids_xml (migrable nativamente)
-      Cardinalidad:     applicability minOccurs=1 maxOccurs=unbounded
-                        (todos los muros del modelo)
+      Las 4 specs siguientes verifican que el modelo declara las
+      entidades espaciales mínimas: 1 Project, ≥1 Site, ≥1 Building,
+      ≥1 Storey. Sin ellas el modelo no es navegable.
+      
+      Nota schema IDS 1.0: la cardinalidad de aplicabilidad (cuántas
+      instancias deben existir) se expresa colocando la entidad en
+      applicability sin restricciones adicionales; el reporter de
+      ifctester contabiliza coincidencias y la spec PASA si encuentra
+      al menos una. Para "exactamente 1" no hay forma nativa en IDS 1.0,
+      por eso C-M-03 se complementa con check yaml_python en runner.
     -->
-    <ids:specification name="C-P-01 · IfcWall con Pset_WallCommon"
+
+    <ids:specification name="C-M-03 · IfcProject debe existir"
+                       ifcVersion="IFC4"
+                       identifier="C-M-03"
+                       description="Todo modelo IFC4 conforme debe declarar al menos un IfcProject."
+                       instructions="Si falla: el modelo no tiene IfcProject. Revisar export desde herramienta de autoría.">
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCPROJECT</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:attribute cardinality="required">
+          <ids:name>
+            <ids:simpleValue>GlobalId</ids:simpleValue>
+          </ids:name>
+        </ids:attribute>
+      </ids:requirements>
+    </ids:specification>
+
+    <ids:specification name="C-M-04 · IfcSite debe existir"
+                       ifcVersion="IFC4"
+                       identifier="C-M-04"
+                       description="Todo modelo PBSA debe declarar al menos un IfcSite (terreno/emplazamiento)."
+                       instructions="Si falla: añadir IfcSite en la herramienta de autoría antes de re-exportar.">
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCSITE</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:attribute cardinality="required">
+          <ids:name>
+            <ids:simpleValue>GlobalId</ids:simpleValue>
+          </ids:name>
+        </ids:attribute>
+      </ids:requirements>
+    </ids:specification>
+
+    <ids:specification name="C-M-05 · IfcBuilding debe existir"
+                       ifcVersion="IFC4"
+                       identifier="C-M-05"
+                       description="Todo modelo PBSA debe declarar al menos un IfcBuilding."
+                       instructions="Si falla: añadir IfcBuilding bajo el IfcSite en la herramienta de autoría.">
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:attribute cardinality="required">
+          <ids:name>
+            <ids:simpleValue>GlobalId</ids:simpleValue>
+          </ids:name>
+        </ids:attribute>
+      </ids:requirements>
+    </ids:specification>
+
+    <ids:specification name="C-M-06 · IfcBuildingStorey debe existir"
+                       ifcVersion="IFC4"
+                       identifier="C-M-06"
+                       description="Todo modelo PBSA debe declarar al menos un IfcBuildingStorey (planta)."
+                       instructions="Si falla: añadir IfcBuildingStorey bajo el IfcBuilding en la herramienta de autoría.">
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDINGSTOREY</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:attribute cardinality="required">
+          <ids:name>
+            <ids:simpleValue>GlobalId</ids:simpleValue>
+          </ids:name>
+        </ids:attribute>
+      </ids:requirements>
+    </ids:specification>
+
+    <!--
+      ================================================================
+      D2 · PROPIEDADES · Psets obligatorios en elementos arquitectónicos
+      ================================================================
+      Las 3 specs siguientes verifican Psets canónicos IFC4:
+        - C-P-01 · IfcWall + Pset_WallCommon.Reference
+        - C-P-02 · IfcSlab + Pset_SlabCommon.LoadBearing
+        - C-P-03 · IfcDoor + Pset_DoorCommon.FireRating
+      Patrón aplicado en cada una: applicability=tipo IFC, requirements=
+      property con cardinality="required" sobre el Pset + baseName.
+    -->
+
+    <ids:specification name="C-P-01 · IfcWall con Pset_WallCommon.Reference"
                        ifcVersion="IFC4"
                        identifier="C-P-01"
-                       description="Todo IfcWall debe declarar el Pset_WallCommon (Pset obligatorio según IFC4)."
-                       instructions="Si falla: añadir Pset_WallCommon al muro en la herramienta de autoría antes de re-exportar."
-                       minOccurs="1"
-                       maxOccurs="unbounded">
-
-      <ids:applicability minOccurs="1" maxOccurs="unbounded">
+                       description="Todo IfcWall debe declarar Pset_WallCommon.Reference como IfcIdentifier con valor no vacío."
+                       instructions="Si falla: añadir Pset_WallCommon.Reference al muro en la herramienta de autoría antes de re-exportar.">
+      <ids:applicability>
         <ids:entity>
           <ids:name>
             <ids:simpleValue>IFCWALL</ids:simpleValue>
           </ids:name>
         </ids:entity>
       </ids:applicability>
-
       <ids:requirements>
-        <ids:property dataType="IFCLABEL"
-                      cardinality="required">
+        <ids:property dataType="IFCIDENTIFIER" cardinality="required">
           <ids:propertySet>
             <ids:simpleValue>Pset_WallCommon</ids:simpleValue>
           </ids:propertySet>
@@ -63,42 +165,46 @@
           </ids:baseName>
         </ids:property>
       </ids:requirements>
-
     </ids:specification>
 
+    <ids:specification name="C-P-02 · IfcSlab con Pset_SlabCommon.LoadBearing"
+                       ifcVersion="IFC4"
+                       identifier="C-P-02"
+                       description="Toda IfcSlab debe declarar Pset_SlabCommon.LoadBearing (IfcBoolean) para análisis estructural y QTO."
+                       instructions="Si falla: añadir Pset_SlabCommon.LoadBearing a la losa en la herramienta de autoría.">
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCSLAB</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property dataType="IFCBOOLEAN" cardinality="required">
+          <ids:propertySet>
+            <ids:simpleValue>Pset_SlabCommon</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>LoadBearing</ids:simpleValue>
+          </ids:baseName>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
 
-    <!--
-      ================================================================
-      Regla 2 · C-P-03 · IfcDoor.Pset_DoorCommon.FireRating definido
-      ================================================================
-      Dimensión:        D2 Propiedades
-      Capa ISO 19650-2: no gráfica
-      Variantes:        todas
-      Backend:          ids_xml (migrable nativamente)
-      Cardinalidad:     applicability minOccurs=1 maxOccurs=unbounded
-                        (todas las puertas del modelo)
-      Nota histórica:   este check pasó de 40% a 100% en autoría S5·L
-                        (entregable E5 · ver docs/E5_autoria_fzk_haus.md).
-    -->
-    <ids:specification name="C-P-03 · IfcDoor con FireRating en Pset_DoorCommon"
+    <ids:specification name="C-P-03 · IfcDoor con Pset_DoorCommon.FireRating"
                        ifcVersion="IFC4"
                        identifier="C-P-03"
-                       description="Toda IfcDoor debe declarar Pset_DoorCommon.FireRating como IfcLabel con valor no vacío."
-                       instructions="Si falla: editar la puerta en la herramienta de autoría y rellenar FireRating (ej. EI60, EI90, EI120, etc.)."
-                       minOccurs="1"
-                       maxOccurs="unbounded">
-
-      <ids:applicability minOccurs="1" maxOccurs="unbounded">
+                       description="Toda IfcDoor debe declarar Pset_DoorCommon.FireRating como IfcLabel con valor no vacío (EI60, EI90, etc.)."
+                       instructions="Si falla: editar la puerta en la herramienta de autoría y rellenar FireRating (ej. EI60, EI90, EI120).">
+      <ids:applicability>
         <ids:entity>
           <ids:name>
             <ids:simpleValue>IFCDOOR</ids:simpleValue>
           </ids:name>
         </ids:entity>
       </ids:applicability>
-
       <ids:requirements>
-        <ids:property dataType="IFCLABEL"
-                      cardinality="required">
+        <ids:property dataType="IFCLABEL" cardinality="required">
           <ids:propertySet>
             <ids:simpleValue>Pset_DoorCommon</ids:simpleValue>
           </ids:propertySet>
@@ -107,7 +213,6 @@
           </ids:baseName>
         </ids:property>
       </ids:requirements>
-
     </ids:specification>
 
   </ids:specifications>

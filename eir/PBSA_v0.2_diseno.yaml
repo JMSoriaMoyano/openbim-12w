@@ -83,3 +83,33 @@ loin_checks:
     pset: "Qto_WindowBaseQuantities"
     prop: "Area"
     check_fn: "query_missing_property"
+
+# =============================================================================
+# Quality Engine v2 checks (variante DISEÑO · sniff coste 5D)
+# =============================================================================
+# Sección NUEVA introducida en S6·X. Se mergea con quality_engine_checks
+# del común (D1+D3+D5) por concatenación (común primero, variante después).
+# El runner detecta colisiones de check_id entre común y variante.
+# =============================================================================
+
+quality_engine_checks:
+
+  # ---------------------------------------------------------------------------
+  # D8 · Coste 5D (solo diseño)
+  # ---------------------------------------------------------------------------
+
+  - check_id: "C-Q-03"
+    dimension: "D8"
+    layer: "no_grafica"
+    hito: "H3"
+    severity: "recomendado"
+    backend: "yaml_python"
+    check_fn: "quality_engine.rules.d8_coste:sniff_qto_coherence"
+    params:
+      tolerance_pct: 5.0
+      sample_size: 10
+      target_type: "IfcWall"
+      qto_pset: "Qto_WallBaseQuantities"
+      qto_prop: "NetVolume"
+    eir_ref: "§3.8"
+    rationale: "Sniff numérico 5D: para una muestra de muros con QTO declarado, comparar Qto_WallBaseQuantities.NetVolume con el volumen calculado desde geometría (bbox o representación). Discrepancia > 5% sugiere QTO obsoleto vs autoría reciente (riesgo presupuestario)."

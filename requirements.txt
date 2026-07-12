@@ -2,10 +2,11 @@
 # openbim-12w · Requirements mínimos
 # =============================================================================
 # Sesión origen: S5·L Bloque A (housekeeping)
-# Última revisión: 2026-06-08
+# Última revisión: 2026-06-17 (S6·X · backend IDS)
 #
 # Política de versiones:
 #   - ifcopenshell : versión flexible (proyecto educativo; aceptamos rangos)
+#   - ifctester    : añadido en S6·X para validación IDS 1.0 oficial
 #   - pyyaml       : >= 6.0 para soporte robusto safe_load
 #   - matplotlib   : >= 3.7 para API estable (introducida S5·L Bloque B)
 #
@@ -13,9 +14,10 @@
 #   pip install -r requirements.txt
 #
 # Verificación rápida:
-#   python -c "import ifcopenshell, yaml, matplotlib; print('OK')"
+#   python -c "import ifcopenshell, ifctester, yaml, matplotlib; print('OK')"
 # =============================================================================
 
 ifcopenshell>=0.7
+ifctester>=0.8
 pyyaml>=6.0
 matplotlib>=3.7
